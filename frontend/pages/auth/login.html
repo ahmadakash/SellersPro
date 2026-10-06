@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Sign In | sellersPro</title>
+
+    <link
+        rel="stylesheet"
+        href="../../assets/css/app.css"
+    >
+
+    <link
+        rel="stylesheet"
+        href="../../assets/css/auth.css"
+    >
+</head>
+
+<body>
+
+    <main class="auth-page">
+
+        <section class="auth-container">
+
+            <!-- Left promotional section -->
+            <div class="auth-promo">
+
+                <div class="auth-logo">
+                    sellersPro
+                </div>
+
+                <div class="auth-promo-content">
+
+                    <h1>
+                        Run your shop.
+                        <br>
+                        Grow your business.
+                    </h1>
+
+                    <p>
+                        Manage your orders, products,
+                        customers and business performance
+                        from one place.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <!-- Login form -->
+            <div class="auth-form-section">
+
+                <div class="auth-form-wrapper">
+
+                    <h2>Welcome back</h2>
+
+                    <p class="auth-subtitle">
+                        Sign in to continue to your business.
+                    </p>
+
+
+                    <form id="loginForm">
+
+                        <div class="form-group">
+
+                            <label for="email">
+                                Email
+                            </label>
+
+                            <input
+                                type="email"
+                                id="email"
+                                name="email"
+                                placeholder="Enter your email"
+                                required
+                            >
+
+                        </div>
+
+
+                        <div class="form-group">
+
+                            <label for="password">
+                                Password
+                            </label>
+
+                            <input
+                                type="password"
+                                id="password"
+                                name="password"
+                                placeholder="Enter your password"
+                                required
+                            >
+
+                        </div>
+
+
+                        <button
+                            type="submit"
+                            class="auth-primary-btn"
+                        >
+                            Sign In
+                        </button>
+
+                    </form>
+
+
+                    <div
+                        id="loginError"
+                        class="auth-error"
+                    ></div>
+
+
+                    <div class="auth-divider">
+                        <span>OR</span>
+                    </div>
+
+
+                    <button
+                        type="button"
+                        id="googleLoginBtn"
+                        class="auth-secondary-btn"
+                    >
+                        Continue with Google
+                    </button>
+
+
+                    <button
+                        type="button"
+                        id="phoneLoginBtn"
+                        class="auth-secondary-btn"
+                    >
+                        Continue with Phone
+                    </button>
+
+
+                    <p class="auth-switch">
+
+                        Don't have an account?
+
+                        <a href="register.html">
+                            Create account
+                        </a>
+
+                    </p>
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <script
+        type="module"
+        src="../../assets/js/auth/login.js"
+    ></script>
+
+</body>
+
+</html>
