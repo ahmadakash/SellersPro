@@ -1,0 +1,320 @@
+/* ================================
+   AUTH LAYOUT
+================================ */
+
+.auth-layout {
+    min-height: 100vh;
+    display: flex;
+    background: #f5f6fb;
+}
+
+
+/* ================================
+   LEFT SIDEBAR
+================================ */
+
+.auth-sidebar {
+    width: 22%;
+    min-width: 280px;
+    background: #1e2d50;
+    color: white;
+    padding: 32px 26px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.auth-brand {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    font-weight: 700;
+    font-size: 14px;
+}
+
+.brand-icon {
+    width: 24px;
+    height: 24px;
+    border-radius: 7px;
+    background: #4165df;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+}
+
+.auth-intro {
+    margin-top: 60px;
+}
+
+.auth-intro h1 {
+    font-size: 24px;
+    line-height: 1.2;
+    margin-bottom: 15px;
+}
+
+.auth-intro p {
+    color: #c4ccdf;
+    font-size: 10px;
+    line-height: 1.7;
+    max-width: 210px;
+}
+
+
+.auth-stats {
+    margin-top: auto;
+}
+
+.auth-stat {
+    border-top: 1px solid rgba(255,255,255,0.12);
+    padding: 13px 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.auth-stat span {
+    color: #c4ccdf;
+    font-size: 9px;
+}
+
+.auth-stat strong {
+    font-size: 12px;
+}
+
+
+/* ================================
+   RIGHT SIDE
+================================ */
+
+.auth-main {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 30px;
+}
+
+.login-form-container {
+    width: 100%;
+    max-width: 330px;
+}
+
+
+/* ================================
+   HEADING
+================================ */
+
+.login-heading h2 {
+    margin: 0 0 5px;
+    font-size: 20px;
+    color: #111827;
+}
+
+.login-heading p {
+    margin: 0 0 25px;
+    color: #777;
+    font-size: 10px;
+}
+
+
+/* ================================
+   FORM
+================================ */
+
+.form-group {
+    margin-bottom: 14px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 6px;
+    font-size: 9px;
+    color: #333;
+}
+
+.form-group input {
+    width: 100%;
+    height: 35px;
+    padding: 0 11px;
+    border: 1px solid #dedfe5;
+    border-radius: 7px;
+    background: white;
+    outline: none;
+    font-size: 10px;
+}
+
+.form-group input:focus {
+    border-color: #4165df;
+}
+
+/* ================================
+   DIVIDER
+================================ */
+
+
+.login-divider {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 18px 0;
+    color: #999;
+    font-size: 9px;
+}
+
+.login-divider::before,
+.login-divider::after {
+    content: "";
+    height: 1px;
+    background: #e2e2e2;
+    flex: 1;
+}
+
+.social-login-btn {
+    width: 100%;
+    height: 36px;
+    margin-bottom: 9px;
+    border: 1px solid #dedfe5;
+    border-radius: 7px;
+    background: white;
+    color: #333;
+    font-size: 10px;
+    cursor: pointer;
+}
+
+.social-login-btn:hover {
+    background: #f7f7f7;
+}
+
+.phone-login-section {
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid #eeeeee;
+}
+
+#recaptcha-container {
+    margin: 10px 0;
+}
+
+#otpSection {
+    margin-top: 10px;
+}
+
+
+/* ================================
+   PASSWORD
+================================ */
+
+.password-wrapper {
+    position: relative;
+}
+
+.password-wrapper input {
+    padding-right: 38px;
+}
+
+.password-toggle {
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    border: none;
+    background: transparent;
+    color: #888;
+    cursor: pointer;
+    font-size: 12px;
+}
+
+
+/* ================================
+   FORGOT PASSWORD
+================================ */
+
+.forgot-row {
+    text-align: right;
+    margin-top: -4px;
+    margin-bottom: 15px;
+}
+
+.forgot-row a {
+    color: #4165df;
+    font-size: 9px;
+    text-decoration: none;
+}
+
+
+/* ================================
+   SIGN IN BUTTON
+================================ */
+
+.signin-submit {
+    width: 100%;
+    height: 36px;
+    border: none;
+    border-radius: 7px;
+    background: #4165df;
+    color: white;
+    font-weight: 600;
+    font-size: 10px;
+    cursor: pointer;
+}
+
+.signin-submit:hover {
+    opacity: 0.9;
+}
+
+
+/* ================================
+   MESSAGE
+================================ */
+
+.auth-message {
+    min-height: 14px;
+    margin: 8px 0 0;
+    font-size: 9px;
+    text-align: center;
+}
+
+
+/* ================================
+   CREATE ACCOUNT
+================================ */
+
+.create-account {
+    margin-top: 15px;
+    text-align: center;
+    color: #777;
+    font-size: 9px;
+}
+
+.create-account a {
+    color: #4165df;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+
+/* ================================
+   RESPONSIVE
+================================ */
+
+@media (max-width: 768px) {
+
+    .auth-layout {
+        min-height: 100vh;
+    }
+
+    .auth-sidebar {
+        display: none;
+    }
+
+    .auth-main {
+        min-height: 100vh;
+        padding: 25px;
+    }
+
+    .login-form-container {
+        max-width: 400px;
+    }
+
+}

@@ -9,11 +9,11 @@
         content="width=device-width, initial-scale=1.0"
     >
 
-    <title>Sign In | sellersPro</title>
+    <title>SellerPro - Sign In</title>
 
     <link
         rel="stylesheet"
-        href="../../assets/css/app.css"
+        href="../../assets/css/global.css"
     >
 
     <link
@@ -24,29 +24,30 @@
 
 <body>
 
-    <main class="auth-page">
+    <main class="auth-layout">
 
-        <section class="auth-container">
+        <!-- LEFT PANEL -->
 
-            <!-- Left promotional section -->
-            <div class="auth-promo">
+        <section class="auth-sidebar">
 
-                <div class="auth-logo">
-                    sellersPro
+            <div>
+
+                <div class="auth-brand">
+                    <div class="brand-icon">S</div>
+                    <span>SellerPro</span>
                 </div>
 
-                <div class="auth-promo-content">
+                <div class="auth-intro">
 
                     <h1>
-                        Run your shop.
-                        <br>
-                        Grow your business.
+                        Run your shop<br>
+                        from one place.
                     </h1>
 
                     <p>
-                        Manage your orders, products,
-                        customers and business performance
-                        from one place.
+                        Track orders, manage products, keep an eye
+                        on stock, and understand your sales —
+                        all in one clean dashboard.
                     </p>
 
                 </div>
@@ -54,106 +55,224 @@
             </div>
 
 
-            <!-- Login form -->
-            <div class="auth-form-section">
+            <div class="auth-stats">
 
-                <div class="auth-form-wrapper">
+                <div class="auth-stat">
+                    <span>Orders tracked</span>
+                    <strong>20+</strong>
+                </div>
+
+                <div class="auth-stat">
+                    <span>Small businesses</span>
+                    <strong>10+</strong>
+                </div>
+
+                <div class="auth-stat">
+                    <span>Products managed</span>
+                    <strong>200+</strong>
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- RIGHT PANEL -->
+
+        <section class="auth-main">
+
+            <div class="login-form-container">
+
+                <div class="login-heading">
 
                     <h2>Welcome back</h2>
 
-                    <p class="auth-subtitle">
-                        Sign in to continue to your business.
+                    <p>
+                        Sign in to your business dashboard
                     </p>
 
-
-                    <form id="loginForm">
-
-                        <div class="form-group">
-
-                            <label for="email">
-                                Email
-                            </label>
-
-                            <input
-                                type="email"
-                                id="email"
-                                name="email"
-                                placeholder="Enter your email"
-                                required
-                            >
-
-                        </div>
+                </div>
 
 
-                        <div class="form-group">
+                <form id="loginForm">
 
-                            <label for="password">
-                                Password
-                            </label>
+                    <div class="form-group">
+
+                        <label for="email">
+                            Email
+                        </label>
+
+                        <input
+                            type="email"
+                            id="email"
+                            placeholder="rima1234@business.com"
+                            required
+                        >
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label for="password">
+                            Password
+                        </label>
+
+                        <div class="password-wrapper">
 
                             <input
                                 type="password"
                                 id="password"
-                                name="password"
-                                placeholder="Enter your password"
+                                placeholder="••••••••"
                                 required
                             >
 
+                            <button
+                                type="button"
+                                id="togglePassword"
+                                class="password-toggle"
+                                aria-label="Show password"
+                            >
+                                ◉
+                            </button>
+
                         </div>
 
+                    </div>
 
-                        <button
-                            type="submit"
-                            class="auth-primary-btn"
+
+                    <div class="forgot-row">
+
+                        <a
+                            href="#"
+                            id="forgotPassword"
                         >
-                            Sign In
-                        </button>
+                            Forgot password?
+                        </a>
 
-                    </form>
-
-
-                    <div
-                        id="loginError"
-                        class="auth-error"
-                    ></div>
-
-
-                    <div class="auth-divider">
-                        <span>OR</span>
                     </div>
 
 
                     <button
-                        type="button"
-                        id="googleLoginBtn"
-                        class="auth-secondary-btn"
+                        type="submit"
+                        class="signin-submit"
                     >
-                        Continue with Google
+                        Sign In
                     </button>
 
 
-                    <button
-                        type="button"
-                        id="phoneLoginBtn"
-                        class="auth-secondary-btn"
-                    >
-                        Continue with Phone
-                    </button>
+                    <p
+                        id="loginMessage"
+                        class="auth-message"
+                    ></p>
 
+                </form>
 
-                    <p class="auth-switch">
-
-                        Don't have an account?
-
-                        <a href="register.html">
-                            Create account
-                        </a>
-
-                    </p>
-
+                
+            <div class="login-divider">
+                
+                    <span>OR</span>
                 </div>
 
+
+                <!-- GOOGLE LOGIN -->
+
+                <button
+                    type="button"
+                    id="googleLoginBtn"
+                    class="social-login-btn"
+                >
+                    Continue with Google
+                </button>
+
+
+                <!-- PHONE LOGIN -->
+
+                <button
+                    type="button"
+                    id="phoneLoginBtn"
+                    class="social-login-btn"
+                >
+                    Continue with Phone
+                </button>
+
+
+                <p class="create-account">
+
+                    Don't have an account?
+
+                    <a href="register.html">
+                        Create account
+                    </a>
+
+                </p>
+
             </div>
+            <div
+    id="phoneLoginSection"
+    class="phone-login-section"
+    hidden
+>
+
+    <div class="form-group">
+
+        <label for="phoneNumber">
+            Phone Number
+        </label>
+
+        <input
+            type="tel"
+            id="phoneNumber"
+            placeholder="+8801XXXXXXXXX"
+        >
+
+    </div>
+
+
+    <div id="recaptcha-container"></div>
+
+
+    <button
+        type="button"
+        id="sendOtpBtn"
+        class="signin-submit"
+    >
+        Send OTP
+    </button>
+
+
+    <div
+        id="otpSection"
+        hidden
+    >
+
+        <div class="form-group">
+
+            <label for="otp">
+                OTP
+            </label>
+
+            <input
+                type="text"
+                id="otp"
+                maxlength="6"
+                placeholder="Enter OTP"
+            >
+
+        </div>
+
+
+        <button
+            type="button"
+            id="verifyOtpBtn"
+            class="signin-submit"
+        >
+            Verify OTP
+        </button>
+
+    </div>
+
+</div>
 
         </section>
 

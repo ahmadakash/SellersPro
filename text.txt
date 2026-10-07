@@ -19,3 +19,8 @@ const firebaseConfig = {
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const analytics = getAnalytics(app);
+
+backend files:
+1. frontend/assets/js/config/firebase-config.js
+2. frontend/assets/js/config/firebase.js
+3. frontend/assets/js/services/auth-service.js
