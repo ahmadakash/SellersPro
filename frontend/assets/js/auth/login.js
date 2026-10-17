@@ -4,7 +4,7 @@ import {
     setupPhoneRecaptcha,
     sendPhoneOTP,
     verifyPhoneOTP,
-    resetPassword
+    resetPassword,
 } from "../services/auth-service.js";
 
 

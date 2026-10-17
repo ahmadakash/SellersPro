@@ -149,23 +149,28 @@ export async function loginWithEmail(
 ========================================= */
 
 export async function loginWithGoogle() {
+    const provider = new GoogleAuthProvider();
+    const result = await signInWithPopup(auth, provider);
 
-    const provider =
-        new GoogleAuthProvider();
+    const userRef = doc(db, "users", result.user.uid);
+    const existingProfile = await getDoc(userRef);
 
-    const result =
-        await signInWithPopup(
-            auth,
-            provider
-        );
-
-
-    return await createUserProfile(
-        result.user,
-        {
-            authProvider: "google"
+    if (!existingProfile.exists()) {
+        // Do not retain a Google-created account when no
+        // registered application profile exists.
+        try {
+            await deleteUser(result.user);
+        } catch (error) {
+            console.error("Could not remove unregistered Google user:", error);
+            await signOut(auth);
         }
-    );
+
+        throw new Error(
+            "No registered sellersPro account was found. Please register first."
+        );
+    }
+
+    return result.user;
 }
 
 

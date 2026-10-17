@@ -1,0 +1,229 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Products | sellersPro</title>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+  <link rel="stylesheet" href="../../assets/css/products.css">
+</head>
+<body>
+  <div class="product-layout">
+    <aside class="product-sidebar" id="productSidebar">
+      <a href="../dashboard/dashboard.html" class="brand">
+        <span class="brand-icon"><i class="bi bi-shop"></i></span>
+        <span>sellers<span class="brand-blue">Pro</span></span>
+      </a>
+
+      <p class="nav-label">WORKSPACE</p>
+      <nav class="side-nav">
+        <a href="../dashboard/dashboard.html" class="nav-link">
+          <i class="bi bi-grid-1x2"></i> Dashboard
+        </a>
+        <a href="products.html" class="nav-link active">
+          <i class="bi bi-box-seam"></i> Products
+        </a>
+        <a href="../orders/orders.html" class="nav-link">
+          <i class="bi bi-receipt"></i> Orders
+        </a>
+        <a href="../customers/customers.html" class="nav-link">
+          <i class="bi bi-people"></i> Customers
+        </a>
+        <a href="../inventory/inventory.html" class="nav-link" >
+          <i class="bi bi-boxes"></i> Inventory
+        </a>
+        <a href="../analytics/analytics.html" class="nav-link" >
+          <i class="bi bi-bar-chart-line"></i> Analytics
+        </a>
+      </nav>
+
+      <div class="sidebar-bottom">
+        <div class="plan-card">
+          <i class="bi bi-stars"></i>
+          <strong>Free plan</strong>
+          <p>Get started with your business.</p>
+          <small>Order limit: 10 orders</small>
+        </div>
+        <button class="nav-link logout-btn" id="logoutBtn" type="button">
+          <i class="bi bi-box-arrow-left"></i> Log out
+        </button>
+      </div>
+      
+    </aside>
+
+    <main class="product-main">
+      <header class="topbar">
+        <button
+          class="menu-toggle"
+          id="menuToggle"
+          type="button"
+          aria-label="Open navigation menu"
+          aria-controls="productSidebar"
+          aria-expanded="false"
+        >
+          <i class="bi bi-list"></i>
+        </button>
+
+        <div class="topbar-title">
+          <span class="eyebrow">SELLER WORKSPACE</span>
+          <h1>Products</h1>
+        </div>
+        <div class="user-area">
+          <div class="user-avatar" id="userAvatar">S</div>
+          <div>
+            <strong id="userName">Loading...</strong>
+            <small id="userBusiness">Your business</small>
+          </div>
+        </div>
+      </header>
+
+      <section class="page-content">
+        <div class="page-intro">
+          <div>
+            <h2>Manage your products</h2>
+            <p>Add products, update prices and keep track of your stock.</p>
+          </div>
+          <button class="primary-btn" id="addProductBtn" type="button">
+            <i class="bi bi-plus-lg"></i> Add product
+          </button>
+        </div>
+
+        <div id="statusMessage" class="status-message" role="status" hidden></div>
+
+        <div class="summary-grid">
+          <article class="summary-card">
+            <span>Total products</span>
+            <strong id="totalProducts">0</strong>
+            <small>Products in your catalog</small>
+          </article>
+          <article class="summary-card">
+            <span>Total units in stock</span>
+            <strong id="totalStock">0</strong>
+            <small>Combined available quantity</small>
+          </article>
+          <article class="summary-card">
+            <span>Low stock</span>
+            <strong id="lowStockCount">0</strong>
+            <small>At or below stock threshold</small>
+          </article>
+        </div>
+
+        <section class="products-panel">
+          <div class="panel-heading">
+            <div>
+              <h3>Product list</h3>
+              <p>All products saved to your account</p>
+            </div>
+            <div class="search-box">
+              <i class="bi bi-search"></i>
+              <input id="searchInput" type="search" placeholder="Search products..." aria-label="Search products">
+            </div>
+          </div>
+
+          <div class="table-responsive">
+            <table class="table product-table align-middle">
+              <thead>
+                <tr>
+                  <th>PRODUCT</th>
+                  <th>SKU</th>
+                  <th>SELLING PRICE</th>
+                  <th>COST PRICE</th>
+                  <th>STOCK</th>
+                  <th>STATUS</th>
+                  <th>ACTIONS</th>
+                </tr>
+              </thead>
+              <tbody id="productTableBody">
+                <tr><td colspan="7" class="loading-cell">Loading products...</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="empty-state" id="emptyState" hidden>
+            <div class="empty-icon"><i class="bi bi-box-seam"></i></div>
+            <strong id="emptyTitle">No products yet</strong>
+            <p id="emptyDescription">Add your first product to start building your catalog.</p>
+            <button class="primary-btn" id="emptyAddBtn" type="button">
+              <i class="bi bi-plus-lg"></i> Add your first product
+            </button>
+          </div>
+        </section>
+      </section>
+    </main>
+  </div>
+
+  <div class="modal-backdrop-custom" id="productModal" hidden>
+    <section class="product-modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <div class="modal-heading">
+        <div>
+          <h3 id="modalTitle">Add product</h3>
+          <p>Enter your product details below.</p>
+        </div>
+        <button type="button" class="close-btn" id="closeModalBtn" aria-label="Close">
+          <i class="bi bi-x-lg"></i>
+        </button>
+      </div>
+
+      <form id="productForm">
+        <input type="hidden" id="productId">
+
+        <div class="form-field">
+          <label for="productName">Product name *</label>
+          <input id="productName" maxlength="120" required placeholder="e.g. Cotton T-shirt">
+        </div>
+
+        <div class="form-row">
+          <div class="form-field">
+            <label for="productSku">SKU (optional)</label>
+            <input id="productSku" maxlength="60" placeholder="e.g. TS-001">
+          </div>
+          <div class="form-field">
+            <label for="productCategory">Category</label>
+            <input id="productCategory" maxlength="60" placeholder="e.g. Clothing">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-field">
+            <label for="sellingPrice">Selling price (৳) *</label>
+            <input id="sellingPrice" type="number" min="0" step="0.01" required placeholder="0.00">
+          </div>
+          <div class="form-field">
+            <label for="costPrice">Cost price (৳) *</label>
+            <input id="costPrice" type="number" min="0" step="0.01" required placeholder="0.00">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-field">
+            <label for="productStock">Initial stock *</label>
+            <input id="productStock" type="number" min="0" step="1" required placeholder="0">
+          </div>
+          <div class="form-field">
+            <label for="lowStockThreshold">Low-stock threshold *</label>
+            <input id="lowStockThreshold" type="number" min="0" step="1" value="5" required>
+          </div>
+        </div>
+
+        <div class="form-field">
+          <label for="productDescription">Description (optional)</label>
+          <textarea id="productDescription" maxlength="500" rows="3" placeholder="Short product details"></textarea>
+        </div>
+
+        <p class="form-error" id="formError" role="alert" hidden></p>
+
+        <div class="modal-actions">
+          <button type="button" class="secondary-btn" id="cancelBtn">Cancel</button>
+          <button type="submit" class="primary-btn" id="saveProductBtn">Save product</button>
+        </div>
+      </form>
+    </section>
+  </div>
+  
+
+  <script type="module" src="../../assets/js/products/products.js"></script>
+</body>
+</html>

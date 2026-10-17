@@ -1,0 +1,349 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Orders | sellersPro</title>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+  <link rel="stylesheet" href="../../assets/css/dashboard.css">
+  <link rel="stylesheet" href="../../assets/css/orders.css">
+</head>
+<body>
+<div class="app-shell">
+  <aside class="sidebar" id="sidebar">
+    <a href="../home/index.html" class="brand">
+      <span class="brand-icon"><i class="bi bi-shop"></i></span>
+      <span>sellers<span class="brand-blue">Pro</span></span>
+    </a>
+
+    <div class="nav-label">WORKSPACE</div>
+    <nav class="side-nav">
+      <a class="nav-link" href="../dashboard/dashboard.html">
+        <i class="bi bi-grid-1x2"></i><span>Dashboard</span>
+      </a>
+      <a class="nav-link" href="../products/products.html">
+        <i class="bi bi-box-seam"></i><span>Products</span>
+      </a>
+      <a class="nav-link active" href="orders.html">
+        <i class="bi bi-receipt"></i><span>Orders</span>
+      </a>
+      <a class="nav-link" href="../customers/customers.html">
+        <i class="bi bi-people"></i><span>Customers</span>
+      </a>
+      <a class="nav-link" href="#" data-coming-soon="Inventory">
+        <i class="bi bi-boxes"></i><span>Inventory</span>
+      </a>
+      <a class="nav-link" href="#" data-coming-soon="Analytics">
+        <i class="bi bi-bar-chart-line"></i><span>Analytics</span>
+      </a>
+    </nav>
+
+    <div class="sidebar-bottom">
+      <div class="plan-card">
+        <div class="plan-icon"><i class="bi bi-stars"></i></div>
+        <strong>Free plan</strong>
+        <p>Get started with your business.</p>
+        <small>Order limit: 10 orders</small>
+      </div>
+      <button class="nav-link logout-btn" id="logoutBtn" type="button">
+        <i class="bi bi-box-arrow-left"></i><span>Log out</span>
+      </button>
+    </div>
+  </aside>
+
+  <main class="main-area">
+    <header class="topbar">
+      <button class="menu-toggle" id="menuToggle" aria-label="Toggle menu">
+        <i class="bi bi-list"></i>
+      </button>
+
+      <div class="topbar-title">
+        <span class="eyebrow">SELLER WORKSPACE</span>
+        <h1>Orders</h1>
+      </div>
+
+      <button class="user-area profile-trigger" id="profileTrigger" type="button"
+        aria-label="Open seller profile">
+        <span class="user-avatar" id="userAvatar">S</span>
+        <span class="user-info">
+          <strong id="userName">Loading...</strong>
+          <span id="userBusiness">Your business</span>
+        </span>
+        <i class="bi bi-chevron-down profile-chevron"></i>
+      </button>
+    </header>
+
+    <section class="orders-content">
+      <div class="orders-heading">
+        <div>
+          <p class="eyebrow">ORDER MANAGEMENT</p>
+          <h2>Your orders</h2>
+          <p class="muted">Create orders, track their status and manage sales.</p>
+        </div>
+        <button class="primary-btn" id="createOrderBtn" type="button">
+          <i class="bi bi-plus-lg"></i> Create order
+        </button>
+      </div>
+
+      <div class="notice" id="ordersNotice" role="status" hidden></div>
+
+      <div class="orders-stats">
+        <article class="stat-card">
+          <div class="orders-stat-top">
+            <span>Total orders</span>
+            <span class="stat-icon icon-blue"><i class="bi bi-receipt"></i></span>
+          </div>
+          <div class="stat-value" id="totalOrders">0</div>
+          <p>All recorded orders</p>
+        </article>
+
+        <article class="stat-card">
+          <div class="orders-stat-top">
+            <span>Pending</span>
+            <span class="stat-icon icon-orange"><i class="bi bi-clock-history"></i></span>
+          </div>
+          <div class="stat-value" id="pendingOrders">0</div>
+          <p>Awaiting processing</p>
+        </article>
+
+        <article class="stat-card">
+          <div class="orders-stat-top">
+            <span>Delivered</span>
+            <span class="stat-icon icon-green"><i class="bi bi-check-circle"></i></span>
+          </div>
+          <div class="stat-value" id="deliveredOrders">0</div>
+          <p>Successfully delivered</p>
+        </article>
+        
+        <article class="stat-card">
+          <div class="orders-stat-top">
+            <span>Cancelled</span>
+            <span class="stat-icon status-cancelled">
+              <i class="bi bi-x-circle"></i>
+            </span>
+          </div>
+          <div class="stat-value" id="cancelledOrders">0</div>
+          <p>Cancelled orders</p>
+        </article>
+
+        <article class="stat-card">
+          <div class="orders-stat-top">
+            <span>Monthly Order value</span>
+            <span class="stat-icon icon-purple"><i class="bi bi-currency-exchange"></i></span>
+          </div>
+          <div class="stat-value" id="orderValue">৳0</div>
+          <p>Current month, excluding cancelled orders</p>
+        </article>
+      </div>
+
+      <section class="panel orders-panel">
+        <div class="orders-toolbar">
+          <div class="panel-heading orders-panel-heading">
+            <div>
+              <h3>Order directory</h3>
+              <p>Search and manage your orders.</p>
+            </div>
+          </div>
+
+          <div class="orders-filters">
+            <label class="orders-search">
+              <i class="bi bi-search"></i>
+              <input id="orderSearch" type="search"
+                placeholder="Search order or customer..."
+                aria-label="Search orders">
+            </label>
+
+            <select id="statusFilter" aria-label="Filter by order status">
+              <option value="all">All statuses</option>
+              <option value="Pending">Pending</option>
+              <option value="Processing">Processing</option>
+              <option value="Delivered">Delivered</option>
+              <option value="Cancelled">Cancelled</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="orders-table-wrap">
+          <table class="orders-table">
+            <thead>
+              <tr>
+                <th>Order ID</th>
+                <th>Customer</th>
+                <th>Date</th>
+                <th>Items</th>
+                <th>Total</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="ordersTableBody">
+              <tr><td colspan="7" class="orders-empty">Loading orders...</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="orders-mobile-list" id="ordersMobileList"></div>
+      </section>
+    </section>
+  </main>
+</div>
+
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<!-- Create order modal -->
+<div class="orders-modal" id="orderModal" hidden>
+  <div class="orders-modal-backdrop" data-close-order></div>
+
+  <section class="orders-dialog" role="dialog" aria-modal="true"
+    aria-labelledby="orderModalTitle">
+    <div class="orders-modal-heading">
+      <div>
+        <p class="eyebrow">ORDER DETAILS</p>
+        <h2 id="orderModalTitle">Create order</h2>
+        <p class="muted">Choose a customer and add products to this order.</p>
+      </div>
+      <button class="orders-close" id="closeOrderBtn" type="button"
+        aria-label="Close dialog">
+        <i class="bi bi-x-lg"></i>
+      </button>
+    </div>
+
+    <form id="orderForm">
+      <div class="order-form-grid">
+        <div class="order-field full-width">
+          <label for="orderCustomer">Customer *</label>
+          <select id="orderCustomer" required>
+            <option value="">Select a customer</option>
+          </select>
+          <small id="customerHelp">Customers are loaded from your customer directory.</small>
+        </div>
+
+        <div class="order-field">
+          <label for="deliveryArea">Delivery area *</label>
+          <select id="deliveryArea" required>
+            <option value="inside">Inside Dhaka</option>
+            <option value="outside">Outside Dhaka</option>
+          </select>
+        </div>
+        
+        <div class="form-field">
+          <label for="deliveryCharge">Delivery charge (BDT) *</label>
+          <input
+            type="number"
+            id="deliveryCharge"
+            min="0"
+            step="0.01"
+            value="0"
+            required
+          />
+        </div>
+
+        <div class="order-field">
+          <label for="orderStatus">Initial status</label>
+          <input id="orderStatus" value="Pending" readonly>
+        </div>
+      </div>
+
+      <div class="order-items-heading">
+        <div>
+          <h3>Order items</h3>
+          <p class="muted">Stock availability is checked before saving.</p>
+        </div>
+        <button class="secondary-btn" id="addOrderItemBtn" type="button">
+          <i class="bi bi-plus-lg"></i> Add item
+        </button>
+      </div>
+
+      <div id="orderItemsContainer"></div>
+
+      <div class="order-totals">
+        <div><span>Subtotal</span><strong id="orderSubtotal">৳0</strong></div>
+        <div><span>Delivery charge</span><strong id="orderDeliveryCharge">৳0.00</strong></div>
+        <div class="order-grand-total"><span>Total</span><strong id="orderGrandTotal">৳0.00</strong></div>
+      </div>
+
+      <div class="order-field order-notes-field">
+        <label for="orderNotes">Order notes</label>
+        <textarea id="orderNotes" rows="3" maxlength="1000"
+          placeholder="Optional delivery instructions or notes"></textarea>
+      </div>
+
+      <p class="order-feedback" id="orderFormFeedback" role="status" hidden></p>
+
+      <div class="orders-form-actions">
+        <button class="orders-cancel-btn" id="cancelOrderBtn" type="button">Cancel</button>
+        <button class="primary-btn" id="saveOrderBtn" type="submit">
+          <i class="bi bi-check2-circle"></i> Save order
+        </button>
+      </div>
+    </form>
+  </section>
+</div>
+
+<!-- Order details modal -->
+<div class="orders-modal" id="orderDetailsModal" hidden>
+  <div class="orders-modal-backdrop" data-close-details></div>
+  <section class="orders-dialog" role="dialog" aria-modal="true"
+    aria-labelledby="detailsTitle">
+    <div class="orders-modal-heading">
+      <div>
+        <p class="eyebrow">ORDER INFORMATION</p>
+        <h2 id="detailsTitle">Order details</h2>
+      </div>
+      <button class="orders-close" id="closeDetailsBtn" type="button"
+        aria-label="Close details"><i class="bi bi-x-lg"></i></button>
+    </div>
+    <div id="orderDetailsContent"></div>
+  </section>
+</div>
+
+<!-- Shared seller profile modal -->
+<div class="profile-modal" id="profileModal" hidden>
+  <div class="profile-backdrop" data-close-profile></div>
+  <section class="profile-dialog" role="dialog" aria-modal="true"
+    aria-labelledby="profileModalTitle">
+    <div class="profile-modal-header">
+      <div>
+        <p class="eyebrow">ACCOUNT SETTINGS</p>
+        <h2 id="profileModalTitle">Seller profile</h2>
+        <p class="muted">Manage your personal and business details.</p>
+      </div>
+      <button type="button" class="profile-close" id="closeProfileBtn"
+        aria-label="Close profile"><i class="bi bi-x-lg"></i></button>
+    </div>
+
+    <form id="profileForm">
+      <div class="profile-form-grid">
+        <div class="profile-field">
+          <label for="profileName">Full name</label>
+          <input id="profileName" maxlength="100" required>
+        </div>
+        <div class="profile-field">
+          <label for="profileBusinessName">Business name</label>
+          <input id="profileBusinessName" maxlength="120" required>
+        </div>
+        <div class="profile-field">
+          <label for="profileEmail">Email address</label>
+          <input id="profileEmail" type="email" readonly>
+          <small>Email changes are managed separately.</small>
+        </div>
+        <div class="profile-field">
+          <label for="profilePhone">Phone number</label>
+          <input id="profilePhone" type="tel" maxlength="25">
+        </div>
+      </div>
+      <p class="profile-feedback" id="profileFeedback" role="status" hidden></p>
+      <div class="profile-actions">
+        <button type="button" class="profile-cancel-btn" id="cancelProfileBtn">Cancel</button>
+        <button type="submit" class="primary-btn" id="saveProfileBtn">Save changes</button>
+      </div>
+    </form>
+  </section>
+</div>
+
+<script type="module" src="../../assets/js/orders/orders.js"></script>
+</body>
+</html>
