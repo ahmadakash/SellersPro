@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Analytics & Reports | sellersPro</title>
+
+  <link
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+    rel="stylesheet"
+  />
+  <link
+    href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+    rel="stylesheet"
+  />
+  <link rel="stylesheet" href="../../assets/css/dashboard.css" />
+  <link rel="stylesheet" href="../../assets/css/analytics.css" />
+</head>
+
+<body>
+  <div class="app-shell">
+
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+      <a href="../home/index.html" class="brand">
+        <span class="brand-icon"><i class="bi bi-shop"></i></span>
+        <span>sellers<span class="brand-blue">Pro</span></span>
+      </a>
+
+      <div class="nav-label">WORKSPACE</div>
+      <nav class="side-nav">
+        <a class="nav-link" href="../dashboard/dashboard.html">
+          <i class="bi bi-grid-1x2"></i><span>Dashboard</span>
+        </a>
+        <a class="nav-link" href="../products/products.html">
+          <i class="bi bi-box-seam"></i><span>Products</span>
+        </a>
+        <a class="nav-link" href="../orders/orders.html">
+          <i class="bi bi-receipt"></i>
+          <span>Orders</span>
+        </a>
+        <a class="nav-link" href="../customers/customers.html">
+          <i class="bi bi-people"></i>
+          <span>Customers</span>
+        </a>
+        <a class="nav-link active" href="analytics.html">
+          <i class="bi bi-bar-chart-line"></i>
+          <span>Analytics</span>
+        </a>
+      </nav>
+
+      <div class="sidebar-bottom">
+        <div class="plan-card">
+          <div class="plan-icon"><i class="bi bi-stars"></i></div>
+          <strong>Free plan</strong>
+          <p>Get started with your business.</p>
+          <small>Order limit: 10 orders</small>
+        </div>
+        <button class="nav-link logout-btn" id="logoutBtn" type="button">
+          <i class="bi bi-box-arrow-left"></i><span>Log out</span>
+        </button>
+      </div>
+    </aside>
+
+    <!-- Main area -->
+    <main class="main-area">
+      <header class="topbar">
+        <button class="menu-toggle" id="menuToggle" type="button"
+          aria-label="Toggle navigation">
+          <i class="bi bi-list"></i>
+        </button>
+
+        <div class="topbar-title">
+          <span class="eyebrow">BUSINESS INSIGHTS</span>
+          <h1>Analytics & Reports</h1>
+        </div>
+
+        <button
+          class="user-area profile-trigger"
+          id="profileTrigger"
+          type="button"
+          aria-haspopup="dialog"
+          aria-controls="profileModal"
+          aria-label="Open seller profile"
+        >
+          <span class="user-avatar" id="userAvatar">S</span>
+          <span class="user-info">
+            <strong id="userName">Loading...</strong>
+            <span id="userBusiness">Your business</span>
+          </span>
+          <i class="bi bi-chevron-down profile-chevron"></i>
+        </button>
+      </header>
+
+      <section class="analytics-content">
+      <div class="analytics-notice" id="analyticsNotice" role="status" hidden>
+      </div>
+        <!-- Page heading -->
+        <div class="analytics-heading">
+          <div>
+            <h2>Business overview</h2>
+            <p>Understand your sales, orders and product performance.</p>
+          </div>
+
+          <div class="analytics-filters">
+            <label class="visually-hidden" for="dateRange">Date range</label>
+            <select id="dateRange" class="form-select">
+              <option value="today">Today</option>
+              <option value="7days">Last 7 days</option>
+              <option value="month" selected>This month</option>
+              <option value="lastMonth">Last month</option>
+              <option value="all">All time</option>
+              <option value="custom">Custom range</option>
+            </select>
+
+            <div id="customDateFields" class="custom-date-fields" hidden>
+              <label>
+                <span>From</span>
+                <input class="form-control" type="date" id="startDate" />
+              </label>
+              <label>
+                <span>To</span>
+                <input class="form-control" type="date" id="endDate" />
+              </label>
+              <button class="primary-btn" id="applyDateRange" type="button">
+                Apply
+              </button>
+            </div>
+            <div class="report-download">
+                <button class="primary-btn" id="downloadReportBtn" type="button">
+                    <i class="bi bi-download"></i>
+                    Download Report
+                </button>
+            <div class="report-format-menu" id="reportFormatMenu" hidden>
+                <button type="button" id="downloadCsvBtn">
+                <i class="bi bi-filetype-csv"></i> Download CSV
+                </button>
+                <button type="button" id="downloadPdfBtn">
+                <i class="bi bi-filetype-pdf"></i> Download PDF
+                </button>
+            </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Summary cards -->
+        <div class="analytics-stats">
+          <article class="analytics-stat">
+            <div class="stat-top">
+              <span>Total Revenue</span>
+              <span class="stat-icon revenue-icon">
+                <i class="bi bi-currency-exchange"></i>
+              </span>
+            </div>
+            <h3 id="totalRevenue">৳0.00</h3>
+            <p>From eligible orders</p>
+          </article>
+
+          <article class="analytics-stat">
+            <div class="stat-top">
+              <span>Total Orders</span>
+              <span class="stat-icon orders-icon">
+                <i class="bi bi-receipt"></i>
+              </span>
+            </div>
+            <h3 id="totalOrders">0</h3>
+            <p>Orders in selected period</p>
+          </article>
+
+          <article class="analytics-stat">
+            <div class="stat-top">
+              <span>Delivered Orders</span>
+              <span class="stat-icon delivered-icon">
+                <i class="bi bi-check2-circle"></i>
+              </span>
+            </div>
+            <h3 id="deliveredOrders">0</h3>
+            <p>Successfully delivered</p>
+          </article>
+
+          <article class="analytics-stat">
+            <div class="stat-top">
+              <span>Cancelled Orders</span>
+              <span class="stat-icon cancelled-icon">
+                <i class="bi bi-x-circle"></i>
+              </span>
+            </div>
+            <h3 id="cancelledOrders">0</h3>
+            <p>Cancelled in this period</p>
+          </article>
+        </div>
+
+        <!-- Charts -->
+        <div class="analytics-grid">
+          <section class="analytics-panel sales-panel">
+            <div class="analytics-panel-heading">
+              <div>
+                <h3>Sales overview</h3>
+                <p>Revenue over the selected period</p>
+              </div>
+              <span class="panel-label">
+                <i class="bi bi-graph-up-arrow"></i> Revenue
+              </span>
+            </div>
+
+            <div class="chart-container">
+              <canvas id="salesChart" aria-label="Sales revenue chart"
+                role="img"></canvas>
+              <div class="chart-empty" id="salesChartEmpty">
+                <i class="bi bi-bar-chart-line"></i>
+                <strong>No chart data yet</strong>
+                <span>Your sales trend will appear here.</span>
+              </div>
+            </div>
+          </section>
+
+          <section class="analytics-panel status-panel">
+            <div class="analytics-panel-heading">
+              <div>
+                <h3>Order status</h3>
+                <p>Orders by current status</p>
+              </div>
+            </div>
+
+            <div class="status-chart-wrap">
+              <canvas id="statusChart"></canvas>
+
+              <div id="statusChartEmpty" class="chart-empty-state" hidden>
+                <i class="bi bi-pie-chart"></i>
+                <strong>No order data yet</strong>
+                <span>Status breakdown will appear here.</span>
+              </div>
+            </div>
+
+            <div class="status-legend" id="statusLegend">
+              <span><i class="legend-dot pending-dot"></i> Pending</span>
+              <span><i class="legend-dot processing-dot"></i> Processing</span>
+              <span><i class="legend-dot delivered-dot"></i> Delivered</span>
+              <span><i class="legend-dot cancelled-dot"></i> Cancelled</span>
+            </div>
+          </section>
+        </div>
+
+        <!-- Best-selling products -->
+        <section class="analytics-panel products-panel">
+          <div class="analytics-panel-heading">
+            <div>
+              <h3>Best-selling products</h3>
+              <p>Products ranked by units sold</p>
+            </div>
+            <span class="panel-label">Product performance</span>
+          </div>
+
+          <div class="table-responsive">
+            <table class="table analytics-table">
+              <thead>
+                <tr>
+                  <th>Product</th>
+                  <th>Units sold</th>
+                  <th>Sales value</th>
+                </tr>
+              </thead>
+              <tbody id="topProductsBody">
+                <tr>
+                  <td colspan="3" class="empty-table">
+                    Product sales data will appear here after integration.
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+      </section>
+    </main>
+  </div>
+
+  <!-- Profile modal -->
+  <div class="profile-modal" id="profileModal" hidden>
+    <div class="profile-backdrop" id="profileBackdrop"></div>
+    <div class="profile-dialog" role="dialog" aria-modal="true"
+      aria-labelledby="profileModalTitle">
+      <div class="profile-modal-header">
+        <div>
+          <h2 id="profileModalTitle">Business profile</h2>
+          <p>Manage your account details.</p>
+        </div>
+        <button
+        type="button"
+        class="profile-close"
+        id="closeProfileModal"
+        aria-label="Close profile"
+      >
+        <i class="bi bi-x-lg"></i>
+      </button>
+      </div>
+
+      <form id="profileForm">
+        <div class="profile-form-grid">
+          <label class="profile-field">
+            Full name
+            <input class="form-control" id="profileName" name="name"
+              type="text" required />
+          </label>
+          <label class="profile-field">
+            Business name
+            <input class="form-control" id="profileBusiness"
+              name="businessName" type="text" />
+          </label>
+          <label class="profile-field">
+            Email
+            <input class="form-control" id="profileEmail" name="email"
+              type="email" disabled />
+          </label>
+          <label class="profile-field">
+            Phone
+            <input class="form-control" id="profilePhone" name="phone"
+              type="tel" />
+          </label>
+        </div>
+
+        <p class="profile-feedback" id="profileFeedback" role="status"></p>
+
+          <div class="profile-actions">
+            <button
+              type="button"
+              class="profile-cancel-btn"
+              id="cancelProfile"
+              >
+              Cancel
+            </button>
+
+            <button
+              type="submit"
+              class="primary-btn"
+              id="saveProfileBtn"
+              >
+                Save changes
+              </button>
+          </div>
+      </form>
+    </div>
+  </div>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.2/dist/jspdf.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3.8.4/dist/jspdf.plugin.autotable.min.js"></script>
+
+    <script type="module" src="../../assets/js/analytics/analytics.js"></script>
+
+</body>
+</html>
