@@ -21,6 +21,7 @@ const userAvatar = $("userAvatar");
 const welcomeName = $("welcomeName");
 const logoutBtn = $("logoutBtn");
 const dashboardNotice = $("dashboardNotice");
+const recentOrdersList = $("recentOrdersList");
 
 const profileTrigger = $("profileTrigger");
 const profileModal = $("profileModal");
@@ -70,6 +71,141 @@ function clearProfileFeedback() {
   profileFeedback.className = "profile-feedback";
 }
 
+/* ---------------- Recent orders ---------------- */
+
+const EMPTY_ORDERS_HTML = `
+  <div class="empty-state">
+    <div class="empty-icon"><i class="bi bi-receipt-cutoff"></i></div>
+    <strong>No orders yet</strong>
+    <p>Your orders will appear here after you add them.</p>
+  </div>
+`;
+
+const ERROR_ORDERS_HTML = `
+  <div class="empty-state">
+    <div class="empty-icon"><i class="bi bi-exclamation-circle"></i></div>
+    <strong>Could not load orders</strong>
+    <p>Check your connection and Firestore rules, then refresh.</p>
+  </div>
+`;
+
+function escapeHtml(value) {
+  return String(value ?? "").replace(/[&<>"']/g, (char) => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#39;"
+  }[char]));
+}
+
+function toNumber(value) {
+  const number = Number(value);
+  return Number.isFinite(number) ? number : 0;
+}
+
+function getOrderDate(order) {
+  const value = order.createdAt || order.orderDate || order.date;
+  if (!value) return null;
+
+  const date =
+    typeof value.toDate === "function" ? value.toDate() : new Date(value);
+
+  return Number.isNaN(date.getTime()) ? null : date;
+}
+
+function getOrderStatus(status) {
+  const value = String(status || "Pending").trim().toLowerCase();
+
+  if (value === "delivered") return "Delivered";
+  if (value === "cancelled" || value === "canceled") return "Cancelled";
+  if (value === "processing" || value === "accepted") return "Processing";
+  return "Pending";
+}
+
+function formatMoney(value) {
+  return "৳" + toNumber(value).toLocaleString("en-US", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  });
+}
+
+function renderRecentOrders(orders) {
+  if (!recentOrdersList) return;
+
+  if (!orders.length) {
+    recentOrdersList.innerHTML = EMPTY_ORDERS_HTML;
+    return;
+  }
+
+  // Newest first, show latest 5
+  const recent = [...orders]
+    .sort((a, b) => {
+      const timeA = getOrderDate(a)?.getTime() || 0;
+      const timeB = getOrderDate(b)?.getTime() || 0;
+      return timeB - timeA;
+    })
+    .slice(0, 5);
+
+  recentOrdersList.innerHTML = recent
+    .map((order) => {
+      const customer = order.customerName || "Customer";
+      const orderNumber = order.orderNumber || order.id || "N/A";
+      const status = getOrderStatus(order.status);
+      const total = order.total ?? order.grandTotal ?? order.amount;
+
+      const items = Array.isArray(order.items) ? order.items : [];
+      const itemCount = items.reduce(
+        (sum, item) => sum + (toNumber(item.quantity) || 1),
+        0
+      );
+
+      const date = getOrderDate(order);
+      const dateText = date
+        ? date.toLocaleDateString("en-GB", {
+            day: "numeric",
+            month: "short",
+            year: "numeric"
+          })
+        : "No date";
+
+      return `
+        <a class="recent-order" href="../orders/orders.html">
+          <span class="recent-order-avatar">
+            ${escapeHtml(customer.trim().charAt(0).toUpperCase() || "C")}
+          </span>
+
+          <span class="recent-order-info">
+            <strong>${escapeHtml(customer)}</strong>
+            <small>
+              #${escapeHtml(orderNumber)} · ${escapeHtml(dateText)}
+              · ${itemCount} item${itemCount === 1 ? "" : "s"}
+            </small>
+          </span>
+
+          <span class="recent-order-side">
+            <strong>${formatMoney(total)}</strong>
+            <span class="order-status status-${status.toLowerCase()}">
+              ${status}
+            </span>
+          </span>
+        </a>
+      `;
+    })
+    .join("");
+}
+
+/* ---------------- Dashboard numbers ---------------- */
+
+async function safeGetDocs(ref, label) {
+  try {
+    return await getDocs(ref);
+  } catch (error) {
+    console.error(`Failed to load ${label}:`, error);
+    return null;
+  }
+}
+
 /* Load dashboard numbers from the signed-in seller's own collections. */
 async function loadDashboardStats(uid) {
   const requiredIds = [
@@ -87,31 +223,48 @@ async function loadDashboardStats(uid) {
     );
   }
 
-  const productsRef = collection(db, "users", uid, "products");
-  const customersRef = collection(db, "users", uid, "customers");
-  const ordersRef = collection(db, "users", uid, "orders");
-
+  // Each collection loads on its own, so one failure doesn't block the rest
   const [productsSnapshot, customersSnapshot, ordersSnapshot] =
     await Promise.all([
-      getDocs(productsRef),
-      getDocs(customersRef),
-      getDocs(ordersRef)
+      safeGetDocs(collection(db, "users", uid, "products"), "products"),
+      safeGetDocs(collection(db, "users", uid, "customers"), "customers"),
+      safeGetDocs(collection(db, "users", uid, "orders"), "orders")
     ]);
 
-  const products = productsSnapshot.docs.map((item) => item.data());
+  if (productsSnapshot) {
+    const products = productsSnapshot.docs.map((item) => item.data());
 
-  const lowStockCount = products.filter((product) => {
-    const stock = Number(product.stock ?? 0);
-    const threshold = Number(product.lowStockThreshold ?? 5);
-    return Number.isFinite(stock) &&
-      Number.isFinite(threshold) &&
-      stock <= threshold;
-  }).length;
+    const lowStockCount = products.filter((product) => {
+      const stock = Number(product.stock ?? 0);
+      const threshold = Number(product.lowStockThreshold ?? 5);
+      return Number.isFinite(stock) &&
+        Number.isFinite(threshold) &&
+        stock <= threshold;
+    }).length;
 
-  $("totalProducts").textContent = productsSnapshot.size;
-  $("totalCustomers").textContent = customersSnapshot.size;
-  $("totalOrders").textContent = ordersSnapshot.size;
-  $("lowStockItems").textContent = lowStockCount;
+    $("totalProducts").textContent = productsSnapshot.size;
+    $("lowStockItems").textContent = lowStockCount;
+  }
+
+  if (customersSnapshot) {
+    $("totalCustomers").textContent = customersSnapshot.size;
+  }
+
+  if (ordersSnapshot) {
+    $("totalOrders").textContent = ordersSnapshot.size;
+
+    renderRecentOrders(
+      ordersSnapshot.docs.map((item) => ({ id: item.id, ...item.data() }))
+    );
+  } else if (recentOrdersList) {
+    recentOrdersList.innerHTML = ERROR_ORDERS_HTML;
+  }
+
+  if (!productsSnapshot || !customersSnapshot || !ordersSnapshot) {
+    showNotice(
+      "Some dashboard data could not be loaded. Check Firestore rules."
+    );
+  }
 }
 
 /* Profile interface */

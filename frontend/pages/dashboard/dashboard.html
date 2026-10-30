@@ -38,6 +38,10 @@
           <i class="bi bi-bar-chart-line"></i>
           <span>Analytics</span>
         </a>
+        <a class="nav-link" href="../settings/settings.html">
+          <i class="bi bi-gear"></i>
+          <span>Settings</span>
+        </a>
       </nav>
 
       <div class="sidebar-bottom">
@@ -86,7 +90,7 @@
             <h2>Welcome back, <span id="welcomeName">Seller</span>!</h2>
             <p class="muted">Keep everything organized in one place.</p>
           </div>
-          <a href="#" class="primary-btn" data-coming-soon="New Order">
+          <a href="../orders/orders.html" class="primary-btn">
             <i class="bi bi-plus-lg"></i> Create new order
           </a>
         </div>
@@ -143,12 +147,13 @@
                 <h3>Recent orders</h3>
                 <p>Your latest sales activity</p>
               </div>
-              <a href="#" data-coming-soon="Orders">View all</a>
+              <a href="../orders/orders.html">View all</a>
             </div>
-            <div class="empty-state">
-              <div class="empty-icon"><i class="bi bi-receipt-cutoff"></i></div>
-              <strong>No orders yet</strong>
-              <p>Your orders will appear here after you add them.</p>
+            <div id="recentOrdersList" class="recent-orders-list">
+              <div class="empty-state">
+                <div class="empty-icon"><i class="bi bi-hourglass-split"></i></div>
+                <strong>Loading orders...</strong>
+              </div>
             </div>
           </section>
 

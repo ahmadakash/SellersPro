@@ -579,3 +579,108 @@ button { font: inherit; }
 @media (max-width: 360px) {
   .stats-grid { grid-template-columns: 1fr; }
 }
+
+/* ---- Recent orders list ---- */
+.recent-orders-list {
+  display: grid;
+}
+
+.recent-order {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 13px 0;
+  border-bottom: 1px solid #f0f2f7;
+  color: inherit;
+}
+
+.recent-order:last-child {
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+
+.recent-order:first-child {
+  padding-top: 0;
+}
+
+.recent-order:hover .recent-order-info strong {
+  color: var(--blue);
+}
+
+.recent-order-avatar {
+  display: grid;
+  place-items: center;
+  width: 39px;
+  height: 39px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: var(--blue-light);
+  color: var(--blue);
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.recent-order-info {
+  display: grid;
+  gap: 4px;
+  flex: 1;
+  min-width: 0;
+}
+
+.recent-order-info strong {
+  overflow: hidden;
+  color: var(--text);
+  font-size: 12px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.recent-order-info small {
+  color: var(--muted);
+  font-size: 10px;
+}
+
+.recent-order-side {
+  display: grid;
+  justify-items: end;
+  gap: 5px;
+  flex-shrink: 0;
+}
+
+.recent-order-side > strong {
+  color: var(--navy);
+  font-size: 12px;
+}
+
+.order-status {
+  padding: 3px 9px;
+  border-radius: 20px;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.status-pending {
+  background: #fff6e0;
+  color: #b27a0c;
+}
+
+.status-processing {
+  background: #edf1ff;
+  color: #3d5fd1;
+}
+
+.status-delivered {
+  background: #e6f8f1;
+  color: #16865b;
+}
+
+.status-cancelled {
+  background: #fff0f0;
+  color: #d35454;
+}
+
+@media (max-width: 420px) {
+  .recent-order-info small {
+    white-space: normal;
+  }
+}
