@@ -677,7 +677,23 @@ $("orderForm").addEventListener("submit", async (event) => {
     const itemRefs = submittedItems.map(() => doc(collection(orderRef, "items")));
     const deliveryCharge = getDeliveryCharge();
 
+    const profileRef = doc(db, "users", currentUser.uid);
+    const orderNotificationRef = doc(
+      db,
+      "users",
+      currentUser.uid,
+      "notifications",
+      `new_order_${orderRef.id}`
+    );
+
     await runTransaction(db, async (transaction) => {
+
+      const profileSnapshot = await transaction.get(profileRef);
+      const notificationPreferences =
+        profileSnapshot.exists()
+          ? profileSnapshot.data().notificationPreferences || {}
+          : {};
+
       const productSnapshots = new Map();
 
       // All reads occur before writes inside this transaction.
@@ -760,6 +776,49 @@ $("orderForm").addEventListener("submit", async (event) => {
           updatedAt: now
         });
       }
+      // Create one notification for this order.
+if (notificationPreferences.orderAlerts !== false) {
+  transaction.set(orderNotificationRef, {
+    type: "new_order",
+    title: "New order received",
+    message: `Order ${orderNumber} from ${customer.name || "Customer"} has been created.`,
+    relatedId: orderRef.id,
+    read: false,
+    createdAt: now
+  });
+}
+
+    // Notify when stock crosses its low-stock threshold.
+    if (notificationPreferences.lowStockAlerts !== false) {
+      for (const [productId, requiredQuantity] of quantityByProduct.entries()) {
+        const product = productSnapshots.get(productId);
+        const newStock = product.availableStock - requiredQuantity;
+        const threshold = Number(product.data.lowStockThreshold ?? 5);
+
+        if (
+          product.availableStock > threshold &&
+          newStock <= threshold
+        ) {
+          const lowStockNotificationRef = doc(
+            db,
+            "users",
+            currentUser.uid,
+            "notifications",
+            `low_stock_${productId}`
+          );
+
+          transaction.set(lowStockNotificationRef, {
+            type: "low_stock",
+            title: "Low stock alert",
+            message: `${product.data.name || "A product"} has only ${newStock} item(s) left.`,
+            relatedId: productId,
+            read: false,
+            createdAt: now
+          });
+        }
+      }
+    }
+
     });
 
     closeOrderModal();
@@ -1117,6 +1176,21 @@ document.addEventListener("click", async (event) => {
 
       const order = snapshot.data();
 
+      const profileRef = doc(db, "users", currentUser.uid);
+      const profileSnapshot = await transaction.get(profileRef);
+
+      const notificationPreferences = profileSnapshot.exists()
+        ? profileSnapshot.data().notificationPreferences || {}
+        : {};
+
+      const statusNotificationRef = doc(
+        db,
+        "users",
+        currentUser.uid,
+        "notifications",
+        `order_status_${orderId}_${nextStatus.toLowerCase()}`
+      );
+
       if (!["Pending", "Processing"].includes(order.status)) {
         throw new Error("This order can no longer be updated.");
       }
@@ -1125,10 +1199,23 @@ document.addEventListener("click", async (event) => {
         throw new Error("Invalid order status.");
       }
 
+      const now = serverTimestamp();
+
       transaction.update(orderRef, {
         status: nextStatus,
-        updatedAt: serverTimestamp()
+        updatedAt: now
       });
+
+      if (notificationPreferences.orderAlerts !== false) {
+        transaction.set(statusNotificationRef, {
+          type: "order_status",
+          title: "Order status updated",
+          message: `Order ${order.orderNumber || orderId} is now ${nextStatus}.`,
+          relatedId: orderId,
+          read: false,
+          createdAt: now
+        });
+}
     });
 
     closeDetailsModal();

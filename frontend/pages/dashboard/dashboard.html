@@ -66,6 +66,36 @@
           <span class="eyebrow">SELLER WORKSPACE</span>
           <h1>Dashboard</h1>
         </div>
+        <div class="notification-wrap">
+          <button
+            type="button"
+            class="notification-btn"
+            id="notificationBtn"
+            aria-label="Open notifications"
+            aria-expanded="false"
+            aria-controls="notificationDropdown"
+          >
+            <i class="bi bi-bell"></i>
+            <span class="notification-count" id="notificationCount" hidden>0</span>
+          </button>
+
+          <section class="notification-dropdown" id="notificationDropdown" hidden>
+            <div class="notification-header">
+              <div>
+                <strong>Notifications</strong>
+                <small id="notificationSummary">You're all caught up</small>
+              </div>
+              <button type="button" id="markAllReadBtn">Mark all read</button>
+            </div>
+
+            <div class="notification-list" id="notificationList">
+              <div class="notification-empty">
+                <i class="bi bi-bell-slash"></i>
+                <p>No notifications yet</p>
+              </div>
+            </div>
+          </section>
+        </div>
         <button
           class="user-area profile-trigger"
           id="profileTrigger"

@@ -6,6 +6,10 @@ import {
   doc,
   getDoc,
   getDocs,
+  onSnapshot,
+  query,
+  orderBy,
+  limit,
   serverTimestamp,
   updateDoc
 } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
@@ -35,6 +39,215 @@ const saveProfileBtn = $("saveProfileBtn");
 
 let currentUser = null;
 let currentProfile = {};
+
+/* ---------------- Notifications ---------------- */
+
+const notificationBtn = $("notificationBtn");
+const notificationDropdown = $("notificationDropdown");
+const notificationCount = $("notificationCount");
+const notificationList = $("notificationList");
+const notificationSummary = $("notificationSummary");
+const markAllReadBtn = $("markAllReadBtn");
+
+let stopNotificationsListener = null;
+let currentNotifications = [];
+
+function formatNotificationDate(timestamp) {
+  if (!timestamp) return "Just now";
+
+  const date = typeof timestamp.toDate === "function"
+    ? timestamp.toDate()
+    : new Date(timestamp);
+
+  if (Number.isNaN(date.getTime())) return "Just now";
+
+  return date.toLocaleString("en-BD", {
+    day: "numeric",
+    month: "short",
+    hour: "numeric",
+    minute: "2-digit"
+  });
+}
+
+function notificationIcon(type) {
+  if (type === "new_order") return "bi-bag-check";
+  if (type === "order_status") return "bi-arrow-repeat";
+  if (type === "low_stock") return "bi-exclamation-triangle";
+
+  return "bi-bell";
+}
+
+function renderNotifications(notifications) {
+  currentNotifications = notifications;
+
+  const unreadCount = notifications.filter(
+    (item) => item.read !== true
+  ).length;
+
+  notificationCount.textContent =
+    unreadCount > 99 ? "99+" : String(unreadCount);
+
+  notificationCount.hidden = unreadCount === 0;
+
+  notificationSummary.textContent = unreadCount
+    ? `${unreadCount} unread notification${unreadCount === 1 ? "" : "s"}`
+    : "You're all caught up";
+
+  markAllReadBtn.disabled = unreadCount === 0;
+
+  if (!notifications.length) {
+    notificationList.innerHTML = `
+      <div class="notification-empty">
+        <i class="bi bi-bell-slash"></i>
+        <p>No notifications yet</p>
+      </div>
+    `;
+    return;
+  }
+
+  notificationList.innerHTML = notifications.map((item) => `
+    <button
+      type="button"
+      class="notification-item ${item.read === true ? "" : "unread"}"
+      data-notification-id="${escapeHtml(item.id)}"
+    >
+      <i class="bi ${notificationIcon(item.type)}"></i>
+
+      <span class="notification-item-content">
+        <strong>${escapeHtml(item.title || "Notification")}</strong>
+        <span>${escapeHtml(item.message || "")}</span>
+        <small>${escapeHtml(formatNotificationDate(item.createdAt))}</small>
+      </span>
+    </button>
+  `).join("");
+}
+
+function startNotificationsListener(uid) {
+  if (stopNotificationsListener) {
+    stopNotificationsListener();
+    stopNotificationsListener = null;
+  }
+
+  const notificationsRef = collection(
+    db,
+    "users",
+    uid,
+    "notifications"
+  );
+
+  const notificationsQuery = query(
+    notificationsRef,
+    orderBy("createdAt", "desc"),
+    limit(30)
+  );
+
+  stopNotificationsListener = onSnapshot(
+    notificationsQuery,
+    (snapshot) => {
+      const notifications = snapshot.docs.map((item) => ({
+        id: item.id,
+        ...item.data()
+      }));
+
+      renderNotifications(notifications);
+    },
+    (error) => {
+      console.error("Notification listener failed:", error);
+
+      notificationList.innerHTML = `
+        <div class="notification-empty">
+          <i class="bi bi-exclamation-circle"></i>
+          <p>Could not load notifications. Check Firestore rules.</p>
+        </div>
+      `;
+    }
+  );
+}
+
+notificationBtn.addEventListener("click", () => {
+  const willOpen = notificationDropdown.hidden === true;
+
+  notificationDropdown.hidden = !willOpen;
+  notificationBtn.setAttribute("aria-expanded", String(willOpen));
+});
+
+document.addEventListener("click", (event) => {
+  if (
+    !notificationDropdown.contains(event.target) &&
+    !notificationBtn.contains(event.target)
+  ) {
+    notificationDropdown.hidden = true;
+    notificationBtn.setAttribute("aria-expanded", "false");
+  }
+});
+
+notificationList.addEventListener("click", async (event) => {
+  const item = event.target.closest("[data-notification-id]");
+  if (!item || !currentUser) return;
+
+  const notificationId = item.dataset.notificationId;
+
+  const notification = currentNotifications.find(
+    (entry) => entry.id === notificationId
+  );
+
+  if (!notification || notification.read === true) return;
+
+  try {
+    await updateDoc(
+      doc(
+        db,
+        "users",
+        currentUser.uid,
+        "notifications",
+        notificationId
+      ),
+      {
+        read: true,
+        readAt: serverTimestamp()
+      }
+    );
+  } catch (error) {
+    console.error("Mark notification as read failed:", error);
+    showNotice("Could not mark notification as read.");
+  }
+});
+
+markAllReadBtn.addEventListener("click", async () => {
+  if (!currentUser) return;
+
+  const unreadNotifications = currentNotifications.filter(
+    (item) => item.read !== true
+  );
+
+  if (!unreadNotifications.length) return;
+
+  markAllReadBtn.disabled = true;
+
+  try {
+    await Promise.all(
+      unreadNotifications.map((item) =>
+        updateDoc(
+          doc(
+            db,
+            "users",
+            currentUser.uid,
+            "notifications",
+            item.id
+          ),
+          {
+            read: true,
+            readAt: serverTimestamp()
+          }
+        )
+      )
+    );
+  } catch (error) {
+    console.error("Mark all notifications read failed:", error);
+    showNotice("Could not update all notifications.");
+    markAllReadBtn.disabled = false;
+  }
+});
 
 function showNotice(message, type = "error") {
   dashboardNotice.textContent = message;
@@ -375,6 +588,7 @@ onAuthStateChanged(auth, async (user) => {
   }
 
   currentUser = user;
+  startNotificationsListener(user.uid);
   clearNotice();
 
   // Show basic Auth details while Firestore is loading.
