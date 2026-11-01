@@ -1,0 +1,272 @@
+/* =========================================
+   SELLERSPRO ADMIN — SHARED APP SHELL
+   Used by every Admin page
+========================================= */
+
+:root {
+  --admin-sidebar-width: 250px;
+  --admin-navy: #172b4d;
+  --admin-blue: #356df3;
+  --admin-text: #24334d;
+  --admin-muted: #8490a4;
+  --admin-border: #e9edf4;
+  --admin-bg: #f7f9fc;
+}
+
+/* Reset inside Admin shell */
+
+.app-shell,
+.app-shell * {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  min-height: 100%;
+  margin: 0;
+}
+
+body {
+  background: var(--admin-bg);
+  color: var(--admin-text);
+  font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    Roboto, Arial, sans-serif;
+  font-size: 14px;
+}
+
+.app-shell {
+  min-height: 100vh;
+  width: 100%;
+}
+
+/* Sidebar */
+
+.app-shell .sidebar {
+  position: fixed;
+  inset: 0 auto 0 0;
+  z-index: 1050;
+  display: flex;
+  flex-direction: column;
+  width: var(--admin-sidebar-width);
+  height: 100vh;
+  padding: 24px 16px 18px;
+  overflow-y: auto;
+  background: #fff;
+  border-right: 1px solid var(--admin-border);
+  transition: transform 0.25s ease;
+}
+
+/* Brand */
+
+.app-shell .brand {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  min-height: 48px;
+  margin: 0 5px 32px;
+  color: var(--admin-navy);
+  font-size: 17px;
+  font-weight: 800;
+  letter-spacing: -0.35px;
+}
+
+.app-shell .brand-mark {
+  display: grid;
+  place-items: center;
+  width: 39px;
+  height: 39px;
+  flex: 0 0 39px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #356df3, #6591ff);
+  color: #fff;
+  font-size: 20px;
+  font-weight: 800;
+  box-shadow: 0 5px 12px rgba(53, 109, 243, 0.18);
+}
+
+.app-shell .brand small {
+  display: block;
+  margin-top: 3px;
+  color: #8490a4;
+  font-size: 9px;
+  font-weight: 750;
+  letter-spacing: 1.5px;
+}
+
+/* Navigation */
+
+.app-shell .side-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
+}
+
+.app-shell .side-nav .nav-link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  min-height: 44px;
+  padding: 11px 13px;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  color: #66748b;
+  background: transparent;
+  font-size: 13px;
+  font-weight: 650;
+  line-height: 1.4;
+  text-decoration: none;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.app-shell .side-nav .nav-link i {
+  width: 19px;
+  flex: 0 0 19px;
+  color: #8490a4;
+  font-size: 17px;
+  text-align: center;
+}
+
+.app-shell .side-nav .nav-link:hover {
+  background: #f5f7fc;
+  color: var(--admin-blue);
+}
+
+.app-shell .side-nav .nav-link:hover i {
+  color: var(--admin-blue);
+}
+
+.app-shell .side-nav .nav-link.active {
+  border-color: #e0e9ff;
+  background: #edf3ff;
+  color: var(--admin-blue);
+  font-weight: 750;
+}
+
+.app-shell .side-nav .nav-link.active i {
+  color: var(--admin-blue);
+}
+
+/* Logout */
+
+.app-shell .logout-btn {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 11px;
+  width: 100%;
+  min-height: 43px;
+  margin-top: auto;
+  padding: 11px 13px;
+  border: 1px solid #f1e3e3;
+  border-radius: 10px;
+  background: #fff8f8;
+  color: #d34b4b;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.app-shell .logout-btn:hover {
+  background: #fff0f0;
+  border-color: #f2cece;
+}
+
+/* Main area */
+
+.app-shell .main-area {
+  min-width: 0;
+  min-height: 100vh;
+  margin-left: var(--admin-sidebar-width);
+  background: var(--admin-bg);
+}
+
+/* Topbar */
+
+.app-shell .topbar {
+  position: sticky;
+  top: 0;
+  z-index: 900;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  min-height: 72px;
+  padding: 0 30px;
+  background: rgba(255, 255, 255, 0.96);
+  border-bottom: 1px solid var(--admin-border);
+  box-shadow: 0 2px 8px rgba(31, 45, 75, 0.025);
+  backdrop-filter: blur(10px);
+}
+
+.app-shell .topbar > .btn {
+  display: none;
+  width: 39px;
+  height: 39px;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 1px solid var(--admin-border);
+  border-radius: 9px;
+  background: #fff;
+  color: var(--admin-navy);
+  font-size: 19px;
+}
+
+/* Sidebar overlay */
+
+.app-shell .sidebar-overlay {
+  display: none;
+}
+
+/* Keep content above background */
+
+.app-shell .main-area > section {
+  min-width: 0;
+}
+
+/* Tablet and mobile */
+
+@media (max-width: 900px) {
+  .app-shell .sidebar {
+    transform: translateX(-100%);
+    box-shadow: 12px 0 35px rgba(23, 43, 77, 0.08);
+  }
+
+  .app-shell .sidebar.active {
+    transform: translateX(0);
+  }
+
+  .app-shell .main-area {
+    margin-left: 0;
+  }
+
+  .app-shell .topbar {
+    min-height: 64px;
+    padding: 0 18px;
+  }
+
+  .app-shell .topbar > .btn {
+    display: inline-flex;
+  }
+
+  .app-shell .sidebar-overlay.active {
+    position: fixed;
+    inset: 0;
+    z-index: 1040;
+    display: block;
+    background: rgba(17, 29, 49, 0.38);
+  }
+}
+
+@media (max-width: 480px) {
+  .app-shell .topbar {
+    padding: 0 13px;
+  }
+
+  .app-shell .sidebar {
+    width: min(var(--admin-sidebar-width), 84vw);
+  }
+}

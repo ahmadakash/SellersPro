@@ -2,402 +2,229 @@ import {
     registerWithEmail
 } from "../services/auth-service.js";
 
+import {
+    $,
+    DASHBOARD_URL,
+    isValidEmail,
+    normalizeBdPhone,
+    passwordStrength,
+    getAuthErrorMessage,
+    setAlert,
+    clearAlert,
+    setLoading,
+    setFieldError,
+    clearFieldError,
+    bindFieldErrorClearing,
+    bindPasswordToggles
+} from "./auth-ui.js";
 
-console.log("Register JS loaded");
+const registerAlert = $("registerAlert");
 
+let submitting = false;
 
-const registerForm =
-    document.getElementById("registerForm");
-
-const registerBtn =
-    document.getElementById("registerBtn");
-
-const registerMessage =
-    document.getElementById("registerMessage");
-
-const fullNameInput =
-    document.getElementById("fullName");
-
-const businessNameInput =
-    document.getElementById("businessName");
-
-const emailInput =
-    document.getElementById("email");
-
-const phoneInput =
-    document.getElementById("phone");
-
-const passwordInput =
-    document.getElementById("password");
-
-const confirmPasswordInput =
-    document.getElementById("confirmPassword");
+bindPasswordToggles();
+bindFieldErrorClearing();
 
 
 /* =========================================
-   SHOW MESSAGE
+   LIVE FEEDBACK: PASSWORD STRENGTH + MATCH
 ========================================= */
 
-function showMessage(message, type = "error") {
+function updateStrength() {
 
-    registerMessage.textContent = message;
+    const { level, label } = passwordStrength($("password").value);
 
-    registerMessage.className =
-        `auth-message ${type}`;
+    $("passwordStrength").dataset.level = String(level);
+    $("strengthLabel").textContent = label;
+    $("strengthLabel").dataset.level = String(level);
+}
 
+function updateMatchHint() {
+
+    const password = $("password").value;
+    const confirm = $("confirmPassword").value;
+    const hint = $("matchHint");
+
+    if (!confirm) {
+        hint.textContent = "";
+        hint.className = "match-hint";
+        return;
+    }
+
+    const match = password === confirm;
+
+    hint.textContent = match ? "Passwords match" : "Passwords do not match yet";
+    hint.className = `match-hint ${match ? "is-ok" : "is-bad"}`;
+}
+
+$("password").addEventListener("input", () => {
+    updateStrength();
+    updateMatchHint();
+});
+
+$("confirmPassword").addEventListener("input", updateMatchHint);
+
+
+/* =========================================
+   VALIDATION
+   Returns { values } when valid, or null (after marking every bad field)
+========================================= */
+
+function validate() {
+
+    const fullName = $("fullName").value.trim();
+    const businessName = $("businessName").value.trim();
+    const email = $("email").value.trim();
+    const phoneInput = $("phone").value.trim();
+    const password = $("password").value;
+    const confirmPassword = $("confirmPassword").value;
+
+    const errors = [];   // [fieldId, message] in page order
+
+    if (!fullName) {
+        errors.push(["fullName", "Enter your full name."]);
+    }
+
+    if (!businessName) {
+        errors.push(["businessName", "Enter your business name."]);
+    }
+
+    if (!email) {
+        errors.push(["email", "Enter your email address."]);
+    } else if (!isValidEmail(email)) {
+        errors.push(["email", "Enter a valid email address."]);
+    }
+
+    const phone = normalizeBdPhone(phoneInput);
+
+    if (!phoneInput) {
+        errors.push(["phone", "Enter your mobile number."]);
+    } else if (!phone) {
+        errors.push(["phone", "Enter a valid Bangladeshi mobile number, like 01712345678."]);
+    }
+
+    if (!password) {
+        errors.push(["password", "Create a password."]);
+    } else if (password.length < 8) {
+        errors.push(["password", "Use at least 8 characters."]);
+    }
+
+    if (!confirmPassword) {
+        errors.push(["confirmPassword", "Repeat your password."]);
+    } else if (password !== confirmPassword) {
+        errors.push(["confirmPassword", "Passwords do not match."]);
+    }
+
+    ["fullName", "businessName", "email", "phone", "password", "confirmPassword"]
+        .forEach(clearFieldError);
+
+    errors.forEach(([id, message]) => setFieldError(id, message));
+
+    if (errors.length) {
+        $(errors[0][0]).focus();
+        return null;
+    }
+
+    return {
+        fullName,
+        businessName,
+        email,
+        // stored in the same 01XXXXXXXXX format the app already uses
+        phone: phone.local,
+        password
+    };
 }
 
 
 /* =========================================
-   PASSWORD TOGGLE
+   SUBMIT
 ========================================= */
 
-document
-    .querySelectorAll(".password-toggle")
-    .forEach(button => {
+$("registerForm").addEventListener("submit", async (event) => {
 
-        button.addEventListener("click", () => {
+    event.preventDefault();
 
-            const targetId =
-                button.dataset.target;
+    if (submitting) return;
 
-            const input =
-                document.getElementById(targetId);
+    clearAlert(registerAlert);
 
+    const values = validate();
 
-            if (input.type === "password") {
+    if (!values) return;
 
-                input.type = "text";
+    submitting = true;
 
-                button.setAttribute(
-                    "aria-label",
-                    "Hide password"
-                );
+    const button = $("registerBtn");
 
-            } else {
+    setLoading(button, true, "Creating your account...");
 
-                input.type = "password";
+    try {
 
-                button.setAttribute(
-                    "aria-label",
-                    "Show password"
-                );
-            }
-
+        await registerWithEmail({
+            name: values.fullName,
+            email: values.email,
+            password: values.password,
+            businessName: values.businessName,
+            phone: values.phone
         });
 
-    });
+        showSuccess(values.fullName);
+
+    } catch (error) {
+
+        console.error("Registration error:", error);
+
+        if (error.code === "auth/email-already-in-use") {
+
+            setFieldError("email", "This email is already registered. Try signing in instead.");
+            $("email").focus();
+
+        } else if (error.code === "auth/invalid-email") {
+
+            setFieldError("email", "Enter a valid email address.");
+            $("email").focus();
+
+        } else if (error.code === "auth/weak-password") {
+
+            setFieldError("password", "Choose a stronger password.");
+            $("password").focus();
+
+        } else {
+
+            setAlert(registerAlert, getAuthErrorMessage(error), "error");
+        }
+
+        submitting = false;
+        setLoading(button, false);
+    }
+});
 
 
 /* =========================================
-   REGISTER FORM
+   SUCCESS
+   The new account is already signed in, so go straight to the dashboard
 ========================================= */
 
-registerForm.addEventListener(
-    "submit",
-    async (event) => {
+function showSuccess(fullName) {
 
-        event.preventDefault();
+    const firstName = fullName.split(/\s+/)[0] || "there";
 
-        console.log("Register form submitted");
+    $("registerPanel").hidden = true;
+    $("registerSuccess").hidden = false;
 
+    $("registerSuccess").querySelector("h2").textContent =
+        `Welcome, ${firstName}!`;
 
-        /* Clear old message */
+    window.setTimeout(() => {
+        window.location.href = DASHBOARD_URL;
+    }, 1800);
+}
 
-        showMessage("");
 
+/* =========================================
+   BACK BUTTON (page restored from cache after a redirect)
+========================================= */
 
-        /* Get values */
-
-        const fullName =
-            fullNameInput.value.trim();
-
-        const businessName =
-            businessNameInput.value.trim();
-
-        const email =
-            emailInput.value.trim();
-
-        const phone =
-            phoneInput.value.trim();
-
-        const password =
-            passwordInput.value;
-
-        const confirmPassword =
-            confirmPasswordInput.value;
-
-
-        /* =====================================
-           EMPTY FIELD VALIDATION
-        ===================================== */
-
-        if (!fullName) {
-
-            showMessage(
-                "Please enter your full name."
-            );
-
-            fullNameInput.focus();
-
-            return;
-        }
-
-
-        if (!businessName) {
-
-            showMessage(
-                "Please enter your business name."
-            );
-
-            businessNameInput.focus();
-
-            return;
-        }
-
-
-        if (!email) {
-
-            showMessage(
-                "Please enter your email address."
-            );
-
-            emailInput.focus();
-
-            return;
-        }
-
-
-        if (!phone) {
-
-            showMessage(
-                "Please enter your phone number."
-            );
-
-            phoneInput.focus();
-
-            return;
-        }
-
-
-        if (!password) {
-
-            showMessage(
-                "Please enter a password."
-            );
-
-            passwordInput.focus();
-
-            return;
-        }
-
-
-        if (!confirmPassword) {
-
-            showMessage(
-                "Please confirm your password."
-            );
-
-            confirmPasswordInput.focus();
-
-            return;
-        }
-
-
-        /* =====================================
-           EMAIL VALIDATION
-        ===================================== */
-
-        const emailPattern =
-            /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-
-        if (!emailPattern.test(email)) {
-
-            showMessage(
-                "Please enter a valid email address."
-            );
-
-            emailInput.focus();
-
-            return;
-        }
-
-
-        /* =====================================
-           PASSWORD VALIDATION
-        ===================================== */
-
-        if (password.length < 8) {
-
-            showMessage(
-                "Password must be at least 8 characters."
-            );
-
-            passwordInput.focus();
-
-            return;
-        }
-
-
-        /* =====================================
-           CONFIRM PASSWORD
-        ===================================== */
-
-        if (password !== confirmPassword) {
-
-            showMessage(
-                "Passwords do not match."
-            );
-
-            confirmPasswordInput.focus();
-
-            return;
-        }
-
-
-        /* =====================================
-           PHONE VALIDATION
-        ===================================== */
-
-        const phonePattern =
-            /^01[3-9]\d{8}$/;
-
-
-        if (!phonePattern.test(phone)) {
-
-            showMessage(
-                "Please enter a valid Bangladeshi phone number."
-            );
-
-            phoneInput.focus();
-
-            return;
-        }
-
-
-        /* =====================================
-           START FIREBASE REGISTRATION
-        ===================================== */
-
-        registerBtn.disabled = true;
-
-        registerBtn.textContent =
-            "Creating Account...";
-
-
-        try {
-
-            console.log(
-                "Creating Firebase account..."
-            );
-
-
-            const user =
-                await registerWithEmail({
-
-                    name: fullName,
-
-                    email: email,
-
-                    password: password,
-
-                    businessName: businessName,
-
-                    phone: phone
-
-                });
-
-
-            console.log(
-                "Firebase account created:",
-                user.uid
-            );
-
-
-            showMessage(
-                "Account created successfully.",
-                "success"
-            );
-
-
-            setTimeout(() => {
-
-                window.location.href =
-                    "login.html";
-
-            }, 1200);
-
-
-        } catch (error) {
-
-            console.error(
-                "Registration error:",
-                error
-            );
-
-
-            let message =
-                "Unable to create account.";
-
-
-            if (
-                error.code ===
-                "auth/email-already-in-use"
-            ) {
-
-                message =
-                    "This email is already registered.";
-
-            } else if (
-                error.code ===
-                "auth/invalid-email"
-            ) {
-
-                message =
-                    "Please enter a valid email address.";
-
-            } else if (
-                error.code ===
-                "auth/weak-password"
-            ) {
-
-                message =
-                    "Password is too weak.";
-
-            } else if (
-                error.code ===
-                "auth/operation-not-allowed"
-            ) {
-
-                message =
-                    "Email/Password login is not enabled in Firebase.";
-
-            } else if (
-                error.code ===
-                "permission-denied"
-            ) {
-
-                message =
-                    "Firestore permission denied.";
-
-            } else if (error.message) {
-
-                message =
-                    error.message;
-            }
-
-
-            showMessage(message);
-
-
-            registerBtn.disabled =
-                false;
-
-            registerBtn.textContent =
-                "Create Account";
-
-        }
-
-    }
-);
+window.addEventListener("pageshow", (event) => {
+    if (event.persisted) window.location.reload();
+});

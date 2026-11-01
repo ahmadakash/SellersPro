@@ -1,289 +1,279 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <meta charset="UTF-8">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#356df3">
 
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
+  <title>Sign in | sellersPro</title>
 
-    <title>SellerPro - Sign In</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%23356df3'/%3E%3Ctext x='32' y='44' font-size='36' font-weight='800' text-anchor='middle' fill='white' font-family='Arial'%3ES%3C/text%3E%3C/svg%3E">
 
-    <link
-        rel="stylesheet"
-        href="../../assets/css/global.css"
-    >
-
-    <link
-        rel="stylesheet"
-        href="../../assets/css/auth.css"
-    >
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+  <link rel="stylesheet" href="../../assets/css/global.css">
+  <link rel="stylesheet" href="../../assets/css/auth.css">
 </head>
 
-<body>
-
-    <main class="auth-layout">
-
-        <!-- LEFT PANEL -->
-
-        <section class="auth-sidebar">
-
-            <div>
-
-                <div class="auth-brand">
-                    <div class="brand-icon">S</div>
-                    <span>SellerPro</span>
-                </div>
-
-                <div class="auth-intro">
-
-                    <h1>
-                        Run your shop<br>
-                        from one place.
-                    </h1>
-
-                    <p>
-                        Track orders, manage products, keep an eye
-                        on stock, and understand your sales —
-                        all in one clean dashboard.
-                    </p>
-
-                </div>
-
-            </div>
-
-
-            <div class="auth-stats">
-
-                <div class="auth-stat">
-                    <span>Orders tracked</span>
-                    <strong>20+</strong>
-                </div>
-
-                <div class="auth-stat">
-                    <span>Small businesses</span>
-                    <strong>10+</strong>
-                </div>
-
-                <div class="auth-stat">
-                    <span>Products managed</span>
-                    <strong>200+</strong>
-                </div>
-
-            </div>
-
-        </section>
-
-
-        <!-- RIGHT PANEL -->
-
-        <section class="auth-main">
-
-            <div class="login-form-container">
-
-                <div class="login-heading">
-
-                    <h2>Welcome back</h2>
-
-                    <p>
-                        Sign in to your business dashboard
-                    </p>
-
-                </div>
-
-
-                <form id="loginForm">
-
-                    <div class="form-group">
-
-                        <label for="email">
-                            Email
-                        </label>
-
-                        <input
-                            type="email"
-                            id="email"
-                            placeholder="rima1234@business.com"
-                            required
-                        >
-
-                    </div>
-
-
-                    <div class="form-group">
-
-                        <label for="password">
-                            Password
-                        </label>
-
-                        <div class="password-wrapper">
-
-                            <input
-                                type="password"
-                                id="password"
-                                placeholder="••••••••"
-                                required
-                            >
-
-                            <button
-                                type="button"
-                                id="togglePassword"
-                                class="password-toggle"
-                                aria-label="Show password"
-                            >
-                                ◉
-                            </button>
-
-                        </div>
-
-                    </div>
-
-
-                    <div class="forgot-row">
-
-                        <a
-                            href="#"
-                            id="forgotPassword"
-                        >
-                            Forgot password?
-                        </a>
-
-                    </div>
-
-
-                    <button
-                        type="submit"
-                        class="signin-submit"
-                    >
-                        Sign In
-                    </button>
-
-
-                    <p
-                        id="loginMessage"
-                        class="auth-message"
-                    ></p>
-
-                </form>
-
-                
-            <div class="login-divider">
-                
-                    <span>OR</span>
-                </div>
-
-
-                <!-- GOOGLE LOGIN -->
-
-                <button
-                    type="button"
-                    id="googleLoginBtn"
-                    class="social-login-btn"
-                >
-                    Continue with Google
-                </button>
-
-
-                <!-- PHONE LOGIN -->
-
-                <button
-                    type="button"
-                    id="phoneLoginBtn"
-                    class="social-login-btn"
-                >
-                    Continue with Phone
-                </button>
-
-
-                <p class="create-account">
-
-                    Don't have an account?
-
-                    <a href="register.html">
-                        Create account
-                    </a>
-
-                </p>
-
-            </div>
-            <div
-    id="phoneLoginSection"
-    class="phone-login-section"
-    hidden
->
-
-    <div class="form-group">
-
-        <label for="phoneNumber">
-            Phone Number
-        </label>
-
-        <input
-            type="tel"
-            id="phoneNumber"
-            placeholder="+8801XXXXXXXXX"
-        >
-
+<body class="auth-page">
+
+<main class="auth-layout">
+
+  <!-- ============ LEFT: BRAND PANEL ============ -->
+  <aside class="auth-aside">
+    <div class="aside-inner">
+
+      <a class="auth-brand" href="../home/index.html" aria-label="sellersPro home">
+        <span class="auth-brand-icon"><i class="bi bi-shop"></i></span>
+        <span class="auth-brand-text">sellers<span>Pro</span></span>
+      </a>
+
+      <div class="aside-copy">
+        <span class="aside-badge"><i class="bi bi-stars"></i> Built for Bangladeshi sellers</span>
+        <h1>Run your shop <span>from one place.</span></h1>
+        <p>
+          Orders, products, customers and sales reports in one clean dashboard,
+          so you can spend less time on spreadsheets and more time selling.
+        </p>
+      </div>
+
+      <ul class="aside-features">
+        <li>
+          <span class="feature-icon"><i class="bi bi-receipt"></i></span>
+          <div>
+            <strong>Orders, organised</strong>
+            <small>Create orders, track delivery status and keep every customer on record.</small>
+          </div>
+        </li>
+        <li>
+          <span class="feature-icon"><i class="bi bi-box-seam"></i></span>
+          <div>
+            <strong>Stock that keeps up</strong>
+            <small>Stock drops when you sell and returns when an order is cancelled.</small>
+          </div>
+        </li>
+        <li>
+          <span class="feature-icon"><i class="bi bi-bar-chart-line"></i></span>
+          <div>
+            <strong>Sales you can read</strong>
+            <small>Revenue, best sellers and reports you can download as CSV or PDF.</small>
+          </div>
+        </li>
+      </ul>
+
+      <div class="auth-preview" aria-hidden="true">
+        <div class="preview-head">
+          <span>Recent orders</span>
+          <small>Sample preview</small>
+        </div>
+        <div class="preview-row">
+          <span class="preview-avatar">R</span>
+          <span class="preview-info"><strong>Rahim Store</strong><small>ORD-1A2B</small></span>
+          <span class="preview-badge is-delivered">Delivered</span>
+          <span class="preview-amount">৳1,060</span>
+        </div>
+        <div class="preview-row">
+          <span class="preview-avatar is-purple">N</span>
+          <span class="preview-info"><strong>Nusrat Jahan</strong><small>ORD-3C4D</small></span>
+          <span class="preview-badge is-processing">Processing</span>
+          <span class="preview-amount">৳2,450</span>
+        </div>
+        <div class="preview-row">
+          <span class="preview-avatar is-orange">K</span>
+          <span class="preview-info"><strong>Karim Traders</strong><small>ORD-5E6F</small></span>
+          <span class="preview-badge is-pending">Pending</span>
+          <span class="preview-amount">৳780</span>
+        </div>
+      </div>
+
+      <p class="aside-footnote"><i class="bi bi-shield-check"></i> Free plan: 10 orders every month. No credit card needed.</p>
     </div>
+  </aside>
 
+  <!-- ============ RIGHT: FORM ============ -->
+  <section class="auth-main">
 
-    <div id="recaptcha-container"></div>
+    <header class="auth-topbar">
+      <a class="auth-brand auth-brand-dark" href="../home/index.html" aria-label="sellersPro home">
+        <span class="auth-brand-icon"><i class="bi bi-shop"></i></span>
+        <span class="auth-brand-text">sellers<span>Pro</span></span>
+      </a>
+      <a class="auth-home-link" href="../home/index.html"><i class="bi bi-arrow-left"></i> Back to home</a>
+    </header>
 
+    <div class="auth-card">
 
-    <button
-        type="button"
-        id="sendOtpBtn"
-        class="signin-submit"
-    >
-        Send OTP
-    </button>
+      <!-- ===== VIEW 1: EMAIL + PASSWORD ===== -->
+      <div id="loginView">
 
-
-    <div
-        id="otpSection"
-        hidden
-    >
-
-        <div class="form-group">
-
-            <label for="otp">
-                OTP
-            </label>
-
-            <input
-                type="text"
-                id="otp"
-                maxlength="6"
-                placeholder="Enter OTP"
-            >
-
+        <div class="auth-heading">
+          <h2>Welcome back</h2>
+          <p>Sign in to manage your business.</p>
         </div>
 
+        <div class="auth-alert" id="loginAlert" role="alert" aria-live="polite" hidden></div>
 
-        <button
-            type="button"
-            id="verifyOtpBtn"
-            class="signin-submit"
-        >
-            Verify OTP
+        <form id="loginForm" novalidate>
+
+          <div class="field">
+            <label for="email">Email address</label>
+            <div class="input-wrap">
+              <i class="field-icon bi bi-envelope" aria-hidden="true"></i>
+              <input
+                type="email"
+                id="email"
+                name="email"
+                placeholder="you@business.com"
+                autocomplete="username"
+                autocapitalize="off"
+                spellcheck="false"
+                aria-describedby="emailError"
+                required
+              >
+            </div>
+            <p class="field-error" id="emailError" hidden></p>
+          </div>
+
+          <div class="field">
+            <div class="label-row">
+              <label for="password">Password</label>
+              <button type="button" class="link-btn" id="forgotPassword">Forgot password?</button>
+            </div>
+            <div class="input-wrap">
+              <i class="field-icon bi bi-lock" aria-hidden="true"></i>
+              <input
+                type="password"
+                id="password"
+                name="password"
+                placeholder="Enter your password"
+                autocomplete="current-password"
+                aria-describedby="passwordError"
+                required
+              >
+              <button
+                type="button"
+                class="toggle-btn"
+                data-toggle-password="password"
+                aria-label="Show password"
+                aria-pressed="false"
+              ><i class="bi bi-eye" aria-hidden="true"></i></button>
+            </div>
+            <p class="field-error" id="passwordError" hidden></p>
+          </div>
+
+          <label class="check-row">
+            <input type="checkbox" id="rememberMe" checked>
+            <span>Keep me signed in on this device</span>
+          </label>
+
+          <button type="submit" class="btn-primary" id="loginSubmit">
+            <span class="btn-label">Sign in</span>
+          </button>
+        </form>
+
+        <div class="auth-divider"><span>or continue with</span></div>
+
+        <div class="social-grid">
+          <button type="button" class="btn-social" id="googleLoginBtn">
+            <svg class="google-logo" viewBox="0 0 48 48" aria-hidden="true">
+              <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
+              <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
+              <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
+              <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
+            </svg>
+            <span class="btn-label">Google</span>
+          </button>
+
+          <button type="button" class="btn-social" id="phoneLoginBtn">
+            <i class="bi bi-phone" aria-hidden="true"></i>
+            <span class="btn-label">Phone</span>
+          </button>
+        </div>
+
+        <p class="auth-switch">
+          New to sellersPro?
+          <a href="register.html">Create a free account</a>
+        </p>
+      </div>
+
+      <!-- ===== VIEW 2: PHONE OTP ===== -->
+      <div id="phoneView" hidden>
+
+        <button type="button" class="back-btn" id="backToEmail">
+          <i class="bi bi-arrow-left" aria-hidden="true"></i> Back to email sign in
         </button>
+
+        <div class="auth-heading">
+          <h2>Sign in with phone</h2>
+          <p id="phoneSubtitle">We will text a 6-digit code to your mobile number.</p>
+        </div>
+
+        <div class="auth-alert" id="phoneAlert" role="alert" aria-live="polite" hidden></div>
+
+        <!-- Step 1: number -->
+        <form id="phoneForm" novalidate>
+          <div class="field">
+            <label for="phoneNumber">Mobile number</label>
+            <div class="input-wrap has-prefix">
+              <span class="input-prefix">+880</span>
+              <input
+                type="tel"
+                id="phoneNumber"
+                name="phoneNumber"
+                placeholder="01712345678"
+                autocomplete="tel-national"
+                inputmode="tel"
+                aria-describedby="phoneNumberError"
+              >
+            </div>
+            <p class="field-error" id="phoneNumberError" hidden></p>
+          </div>
+
+          <div id="recaptcha-container"></div>
+
+          <button type="submit" class="btn-primary" id="sendOtpBtn">
+            <span class="btn-label">Send code</span>
+          </button>
+        </form>
+
+        <!-- Step 2: code -->
+        <form id="otpForm" novalidate hidden>
+          <div class="field">
+            <label for="otp">6-digit code</label>
+            <div class="input-wrap">
+              <i class="field-icon bi bi-shield-lock" aria-hidden="true"></i>
+              <input
+                type="text"
+                id="otp"
+                name="otp"
+                class="otp-input"
+                placeholder="000000"
+                maxlength="6"
+                inputmode="numeric"
+                autocomplete="one-time-code"
+                aria-describedby="otpError"
+              >
+            </div>
+            <p class="field-error" id="otpError" hidden></p>
+          </div>
+
+          <button type="submit" class="btn-primary" id="verifyOtpBtn">
+            <span class="btn-label">Verify and sign in</span>
+          </button>
+
+          <div class="otp-actions">
+            <button type="button" class="link-btn" id="resendOtpBtn" disabled>Resend code</button>
+            <button type="button" class="link-btn" id="changeNumberBtn">Change number</button>
+          </div>
+        </form>
+      </div>
 
     </div>
 
-</div>
+    <p class="auth-legal">© sellersPro · Simple tools for growing businesses.</p>
+  </section>
 
-        </section>
+</main>
 
-    </main>
-
-
-    <script
-        type="module"
-        src="../../assets/js/auth/login.js"
-    ></script>
-
+<script type="module" src="../../assets/js/auth/login.js"></script>
 </body>
-
 </html>

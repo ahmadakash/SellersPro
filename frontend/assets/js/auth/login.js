@@ -2,338 +2,466 @@ import {
     loginWithEmail,
     loginWithGoogle,
     setupPhoneRecaptcha,
+    clearPhoneRecaptcha,
     sendPhoneOTP,
     verifyPhoneOTP,
-    resetPassword,
+    resetPassword
 } from "../services/auth-service.js";
 
+import {
+    $,
+    DASHBOARD_URL,
+    CANCELLED_CODES,
+    isValidEmail,
+    normalizeBdPhone,
+    getAuthErrorMessage,
+    setAlert,
+    clearAlert,
+    setLoading,
+    setFieldError,
+    clearFieldError,
+    bindFieldErrorClearing,
+    bindPasswordToggles
+} from "./auth-ui.js";
 
-const loginForm =
-    document.getElementById("loginForm");
+const loginAlert = $("loginAlert");
+const phoneAlert = $("phoneAlert");
 
-const password =
-    document.getElementById("password");
+const OTP_RESEND_SECONDS = 30;
+const RESET_COOLDOWN_SECONDS = 30;
 
-const togglePassword =
-    document.getElementById("togglePassword");
+let redirecting = false;
+let phoneRecaptchaReady = false;
+let lastPhone = null;          // { local, e164 } used for the current OTP
+let resendTimer = null;
+let resetCooldownUntil = 0;
 
-const forgotPassword =
-    document.getElementById("forgotPassword");
-
-const googleLoginBtn =
-    document.getElementById("googleLoginBtn");
-
-const phoneLoginBtn =
-    document.getElementById("phoneLoginBtn");
-
-const phoneLoginSection =
-    document.getElementById("phoneLoginSection");
-
-const sendOtpBtn =
-    document.getElementById("sendOtpBtn");
-
-const verifyOtpBtn =
-    document.getElementById("verifyOtpBtn");
-
-const otpSection =
-    document.getElementById("otpSection");
-
-const message =
-    document.getElementById("loginMessage");
+bindPasswordToggles();
+bindFieldErrorClearing();
 
 
-/* ================================
-   PASSWORD VISIBILITY
-================================ */
+/* =========================================
+   HELPERS
+========================================= */
 
-togglePassword.addEventListener(
-    "click",
-    function () {
+function goToDashboard(alertElement, message = "Signed in. Taking you to your dashboard...") {
 
-        password.type =
-            password.type === "password"
-                ? "text"
-                : "password";
+    redirecting = true;
 
+    setAlert(alertElement, message, "success");
+
+    window.setTimeout(() => {
+        window.location.href = DASHBOARD_URL;
+    }, 500);
+}
+
+function showError(alertElement, error) {
+
+    console.error(error);
+
+    if (CANCELLED_CODES.includes(error?.code)) {
+        setAlert(alertElement, "Sign-in was cancelled.", "info");
+        return;
     }
-);
+
+    setAlert(alertElement, getAuthErrorMessage(error), "error");
+}
+
+function lockSocialButtons(locked) {
+    $("googleLoginBtn").disabled = locked;
+    $("phoneLoginBtn").disabled = locked;
+}
 
 
-/* ================================
-   EMAIL LOGIN
-================================ */
+/* =========================================
+   EMAIL + PASSWORD LOGIN
+========================================= */
 
-loginForm.addEventListener(
-    "submit",
-    async function (event) {
+$("loginForm").addEventListener("submit", async (event) => {
 
-        event.preventDefault();
+    event.preventDefault();
 
-        const email =
-            document
-                .getElementById("email")
-                .value
-                .trim();
+    if (redirecting) return;
 
-        const passwordValue =
-            password.value;
+    clearAlert(loginAlert);
 
-        message.textContent =
-            "Signing in...";
+    const email = $("email").value.trim();
+    const password = $("password").value;
 
-        try {
+    let valid = true;
 
-            await loginWithEmail(
-                email,
-                passwordValue
-            );
+    if (!email) {
+        setFieldError("email", "Enter your email address.");
+        valid = false;
+    } else if (!isValidEmail(email)) {
+        setFieldError("email", "Enter a valid email address.");
+        valid = false;
+    }
 
-            message.textContent =
-                "Login successful.";
+    if (!password) {
+        setFieldError("password", "Enter your password.");
+        valid = false;
+    }
 
-            window.location.href =
-                "../dashboard/dashboard.html";
+    if (!valid) {
+        (document.querySelector(".has-error input") || $("email")).focus();
+        return;
+    }
 
-        } catch (error) {
+    const button = $("loginSubmit");
 
-            console.error(error);
+    setLoading(button, true, "Signing in...");
+    lockSocialButtons(true);
 
-            message.textContent =
-                getLoginError(error.code);
+    try {
+
+        await loginWithEmail(email, password, {
+            remember: $("rememberMe").checked
+        });
+
+        goToDashboard(loginAlert);
+
+    } catch (error) {
+
+        showError(loginAlert, error);
+
+        if (
+            error.code === "auth/invalid-credential" ||
+            error.code === "auth/wrong-password"
+        ) {
+            $("password").select();
         }
+
+        setLoading(button, false);
+        lockSocialButtons(false);
     }
-);
+});
 
 
-/* ================================
+/* =========================================
    GOOGLE LOGIN
-================================ */
+========================================= */
 
-googleLoginBtn.addEventListener(
-    "click",
-    async function () {
+$("googleLoginBtn").addEventListener("click", async () => {
 
-        message.textContent =
-            "Signing in with Google...";
+    if (redirecting) return;
 
-        try {
+    clearAlert(loginAlert);
 
-            await loginWithGoogle();
+    const button = $("googleLoginBtn");
 
-            message.textContent =
-                "Login successful.";
+    setLoading(button, true, "Opening Google...");
+    $("loginSubmit").disabled = true;
+    $("phoneLoginBtn").disabled = true;
 
-            window.location.href =
-                "../dashboard/dashboard.html";
+    try {
 
-        } catch (error) {
+        await loginWithGoogle();
 
-            console.error(error);
+        goToDashboard(loginAlert);
 
-            message.textContent =
-                getLoginError(error.code);
-        }
+    } catch (error) {
+
+        showError(loginAlert, error);
+
+        setLoading(button, false);
+        $("loginSubmit").disabled = false;
+        $("phoneLoginBtn").disabled = false;
     }
-);
+});
 
 
-/* ================================
-   SHOW PHONE LOGIN
-================================ */
-
-phoneLoginBtn.addEventListener(
-    "click",
-    function () {
-
-        phoneLoginSection.hidden = false;
-
-        phoneLoginBtn.disabled = true;
-
-        try {
-
-            setupPhoneRecaptcha(
-                "recaptcha-container"
-            );
-
-        } catch (error) {
-
-            console.error(error);
-
-            message.textContent =
-                "Phone authentication setup failed.";
-        }
-
-    }
-);
-
-
-/* ================================
-   SEND PHONE OTP
-================================ */
-
-sendOtpBtn.addEventListener(
-    "click",
-    async function () {
-
-        const phoneNumber =
-            document
-                .getElementById("phoneNumber")
-                .value
-                .trim();
-
-        if (!phoneNumber) {
-
-            message.textContent =
-                "Enter your phone number.";
-
-            return;
-        }
-
-
-        try {
-
-            await sendPhoneOTP(
-                phoneNumber,
-                window.recaptchaVerifier
-            );
-
-            message.textContent =
-                "OTP sent successfully.";
-
-            otpSection.hidden = false;
-
-        } catch (error) {
-
-            console.error(error);
-
-            message.textContent =
-                getLoginError(error.code);
-        }
-    }
-);
-
-
-/* ================================
-   VERIFY PHONE OTP
-================================ */
-
-verifyOtpBtn.addEventListener(
-    "click",
-    async function () {
-
-        const otp =
-            document
-                .getElementById("otp")
-                .value
-                .trim();
-
-        if (!otp) {
-
-            message.textContent =
-                "Enter the OTP.";
-
-            return;
-        }
-
-
-        try {
-
-            await verifyPhoneOTP(otp);
-
-            message.textContent =
-                "Phone login successful.";
-
-            window.location.href =
-                "../dashboard/dashboard.html";
-
-        } catch (error) {
-
-            console.error(error);
-
-            message.textContent =
-                getLoginError(error.code);
-        }
-    }
-);
-
-
-/* ================================
+/* =========================================
    FORGOT PASSWORD
-================================ */
+========================================= */
 
-forgotPassword.addEventListener(
-    "click",
-    async function (event) {
+$("forgotPassword").addEventListener("click", async () => {
 
-        event.preventDefault();
+    clearAlert(loginAlert);
 
-        const email =
-            document
-                .getElementById("email")
-                .value
-                .trim();
+    const email = $("email").value.trim();
 
-        if (!email) {
+    if (!isValidEmail(email)) {
 
-            message.textContent =
-                "Enter your email first.";
+        setFieldError(
+            "email",
+            email
+                ? "Enter a valid email address."
+                : "Enter your email here first, then click Forgot password."
+        );
 
-            return;
-        }
-
-
-        try {
-
-            await resetPassword(email);
-
-            message.textContent =
-                "Password reset email sent.";
-
-        } catch (error) {
-
-            console.error(error);
-
-            message.textContent =
-                getLoginError(error.code);
-        }
-
+        $("email").focus();
+        return;
     }
-);
+
+    const waitSeconds = Math.ceil((resetCooldownUntil - Date.now()) / 1000);
+
+    if (waitSeconds > 0) {
+        setAlert(
+            loginAlert,
+            `A reset link was just sent. You can request another in ${waitSeconds}s.`,
+            "info"
+        );
+        return;
+    }
+
+    const button = $("forgotPassword");
+    button.disabled = true;
+
+    try {
+
+        await resetPassword(email);
+
+        resetCooldownUntil = Date.now() + RESET_COOLDOWN_SECONDS * 1000;
+
+        // Same wording whether or not the account exists (no email guessing)
+        setAlert(
+            loginAlert,
+            `If an account exists for ${email}, we sent a password reset link. Check your inbox and spam folder.`,
+            "success"
+        );
+
+    } catch (error) {
+
+        showError(loginAlert, error);
+
+    } finally {
+
+        button.disabled = false;
+    }
+});
 
 
-/* ================================
-   ERROR HANDLING
-================================ */
+/* =========================================
+   PHONE LOGIN: VIEWS
+========================================= */
 
-function getLoginError(code) {
+function showView(name) {
 
-    switch (code) {
+    const phone = name === "phone";
 
-        case "auth/invalid-credential":
-            return "Invalid email or password.";
+    $("loginView").hidden = phone;
+    $("phoneView").hidden = !phone;
 
-        case "auth/user-not-found":
-            return "No account found with this email.";
+    clearAlert(loginAlert);
+    clearAlert(phoneAlert);
 
-        case "auth/wrong-password":
-            return "Incorrect password.";
-
-        case "auth/invalid-email":
-            return "Please enter a valid email.";
-
-        case "auth/invalid-phone-number":
-            return "Enter a valid phone number.";
-
-        case "auth/invalid-verification-code":
-            return "Invalid OTP.";
-
-        case "auth/code-expired":
-            return "OTP has expired.";
-
-        case "auth/too-many-requests":
-            return "Too many attempts. Try again later.";
-
-        default:
-            return "Unable to sign in. Please try again.";
+    if (phone) {
+        resetPhoneSteps();
+        $("phoneNumber").focus();
+    } else {
+        stopResendTimer();
+        $("email").focus();
     }
 }
+
+function resetPhoneSteps() {
+
+    $("phoneForm").hidden = false;
+    $("otpForm").hidden = true;
+    $("otp").value = "";
+
+    clearFieldError("phoneNumber");
+    clearFieldError("otp");
+
+    $("phoneSubtitle").textContent =
+        "We will text a 6-digit code to your mobile number.";
+
+    stopResendTimer();
+}
+
+function ensureRecaptcha() {
+
+    if (phoneRecaptchaReady) return;
+
+    setupPhoneRecaptcha("recaptcha-container");
+    phoneRecaptchaReady = true;
+}
+
+function resetRecaptcha() {
+
+    clearPhoneRecaptcha();
+    phoneRecaptchaReady = false;
+}
+
+$("phoneLoginBtn").addEventListener("click", () => showView("phone"));
+
+$("backToEmail").addEventListener("click", () => showView("login"));
+
+$("changeNumberBtn").addEventListener("click", () => {
+
+    resetRecaptcha();
+    clearAlert(phoneAlert);
+    resetPhoneSteps();
+    $("phoneNumber").focus();
+});
+
+
+/* =========================================
+   PHONE LOGIN: SEND CODE
+========================================= */
+
+function startResendTimer() {
+
+    stopResendTimer();
+
+    const button = $("resendOtpBtn");
+    let remaining = OTP_RESEND_SECONDS;
+
+    button.disabled = true;
+    button.textContent = `Resend code in ${remaining}s`;
+
+    resendTimer = window.setInterval(() => {
+
+        remaining -= 1;
+
+        if (remaining <= 0) {
+            stopResendTimer();
+            button.disabled = false;
+            button.textContent = "Resend code";
+            return;
+        }
+
+        button.textContent = `Resend code in ${remaining}s`;
+
+    }, 1000);
+}
+
+function stopResendTimer() {
+
+    if (resendTimer) {
+        window.clearInterval(resendTimer);
+        resendTimer = null;
+    }
+
+    const button = $("resendOtpBtn");
+    button.disabled = true;
+    button.textContent = "Resend code";
+}
+
+async function sendCode(phone, button) {
+
+    clearAlert(phoneAlert);
+
+    setLoading(button, true, "Sending code...");
+
+    try {
+
+        // A fresh security check for every request avoids "already rendered" errors
+        resetRecaptcha();
+        ensureRecaptcha();
+
+        await sendPhoneOTP(phone.e164);
+
+        lastPhone = phone;
+
+        $("phoneForm").hidden = true;
+        $("otpForm").hidden = false;
+        $("otp").value = "";
+
+        $("phoneSubtitle").textContent =
+            `Enter the 6-digit code we sent to +880 ${phone.local.slice(1)}.`;
+
+        setAlert(phoneAlert, "Code sent. It can take up to a minute to arrive.", "success");
+
+        startResendTimer();
+        $("otp").focus();
+
+    } catch (error) {
+
+        showError(phoneAlert, error);
+        resetRecaptcha();
+
+    } finally {
+
+        setLoading(button, false);
+    }
+}
+
+$("phoneForm").addEventListener("submit", async (event) => {
+
+    event.preventDefault();
+
+    const phone = normalizeBdPhone($("phoneNumber").value);
+
+    if (!phone) {
+        setFieldError(
+            "phoneNumber",
+            "Enter a valid Bangladeshi mobile number, like 01712345678."
+        );
+        $("phoneNumber").focus();
+        return;
+    }
+
+    await sendCode(phone, $("sendOtpBtn"));
+});
+
+$("resendOtpBtn").addEventListener("click", async () => {
+
+    if (!lastPhone) return;
+
+    const button = $("resendOtpBtn");
+    button.disabled = true;
+
+    await sendCode(lastPhone, button);
+
+    // sendCode() restores the button, so restart the countdown on success
+    if (!$("otpForm").hidden) startResendTimer();
+});
+
+
+/* =========================================
+   PHONE LOGIN: VERIFY CODE
+========================================= */
+
+$("otp").addEventListener("input", () => {
+    // digits only
+    $("otp").value = $("otp").value.replace(/\D/g, "").slice(0, 6);
+});
+
+$("otpForm").addEventListener("submit", async (event) => {
+
+    event.preventDefault();
+
+    if (redirecting) return;
+
+    clearAlert(phoneAlert);
+
+    const code = $("otp").value.trim();
+
+    if (!/^\d{6}$/.test(code)) {
+        setFieldError("otp", "Enter the 6-digit code from the SMS.");
+        $("otp").focus();
+        return;
+    }
+
+    const button = $("verifyOtpBtn");
+
+    setLoading(button, true, "Verifying...");
+
+    try {
+
+        await verifyPhoneOTP(code);
+
+        stopResendTimer();
+        goToDashboard(phoneAlert);
+
+    } catch (error) {
+
+        showError(phoneAlert, error);
+        setLoading(button, false);
+
+        if (error.code === "auth/invalid-verification-code") {
+            $("otp").select();
+        }
+    }
+});
+
+
+/* =========================================
+   BACK BUTTON (page restored from cache after a redirect)
+========================================= */
+
+window.addEventListener("pageshow", (event) => {
+    if (event.persisted) window.location.reload();
+});

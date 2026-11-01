@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Subscriptions | sellersPro Admin</title>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+
+  <!-- Same design files and order as Admin Dashboard -->
+  <link rel="stylesheet" href="../../assets/css/dashboard.css">
+  <link rel="stylesheet" href="../../assets/css/admin.css">
+
+  <!-- Subscription content only -->
+  <link rel="stylesheet" href="../../assets/css/subscriptions.css">
+</head>
+
+<body class="admin-dashboard">
+
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<div class="app-shell">
+
+  <!-- SAME SIDEBAR AS ADMIN DASHBOARD -->
+  <aside class="sidebar" id="sidebar">
+
+    <a href="dashboard.html" class="brand">
+      <span class="brand-icon">
+        <i class="bi bi-shop"></i>
+      </span>
+      <span>sellers<span class="brand-blue">Pro</span></span>
+    </a>
+
+    <div class="admin-mode-label">
+      <i class="bi bi-shield-lock-fill"></i>
+      ADMIN CONTROL CENTER
+    </div>
+
+    <div class="nav-label">MANAGEMENT</div>
+
+    <nav class="side-nav">
+
+      <a class="nav-link" href="dashboard.html">
+        <i class="bi bi-grid-1x2"></i>
+        <span>Overview</span>
+      </a>
+
+      <a class="nav-link" href="sellers.html">
+        <i class="bi bi-people"></i>
+        <span>Sellers / Users</span>
+      </a>
+
+      <a class="nav-link active" href="subscriptions.html">
+        <i class="bi bi-gem"></i>
+        <span>Subscriptions</span>
+      </a>
+
+      <a class="nav-link" href="payments.html">
+        <i class="bi bi-wallet2"></i>
+        <span>Payment Requests</span>
+        <span class="nav-count" id="pendingPaymentCount">—</span>
+      </a>
+
+      <a class="nav-link" href="pricing.html">
+        <i class="bi bi-tags"></i>
+        <span>Plans & Pricing</span>
+      </a>
+
+    </nav>
+
+    <div class="nav-label admin-nav-label">SECURITY & RECORDS</div>
+
+    <nav class="side-nav">
+      <a class="nav-link" href="audit-logs.html">
+        <i class="bi bi-clock-history"></i>
+        <span>Admin Activity</span>
+      </a>
+    </nav>
+
+    <div class="sidebar-bottom">
+
+      <div class="admin-sidebar-card">
+        <i class="bi bi-shield-check"></i>
+        <strong>Administrator</strong>
+        <p>Manage your SellersPro platform securely.</p>
+      </div>
+
+      <button class="nav-link logout-btn" id="adminLogoutBtn" type="button">
+        <i class="bi bi-box-arrow-left"></i>
+        <span>Log out</span>
+      </button>
+
+    </div>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="main-area">
+
+    <!-- SAME TOPBAR AS ADMIN DASHBOARD -->
+    <header class="topbar">
+
+      <button class="menu-toggle" id="menuToggle" aria-label="Toggle menu">
+        <i class="bi bi-list"></i>
+      </button>
+
+      <div class="topbar-title">
+        <span class="eyebrow">SELLERSPRO ADMIN</span>
+        <h1>Subscriptions</h1>
+      </div>
+
+      <div class="admin-user-area">
+        <span class="admin-online-dot"></span>
+
+        <span class="admin-user-avatar">
+          <i class="bi bi-shield-lock"></i>
+        </span>
+
+        <span class="admin-user-info">
+          <strong id="adminName">Administrator</strong>
+          <small id="adminEmailLabel">Loading...</small>
+        </span>
+      </div>
+
+    </header>
+
+    <!-- SUBSCRIPTION CONTENT -->
+    <section class="dashboard-content admin-content subscription-content">
+
+      <div class="welcome-row">
+        <div>
+          <p class="eyebrow">BILLING MANAGEMENT</p>
+          <h2>Subscription <span>Management</span></h2>
+          <p class="muted">
+            Review seller subscription applications and manage their status.
+          </p>
+        </div>
+
+        <button class="admin-refresh-btn" id="refreshBtn" type="button">
+          <i class="bi bi-arrow-clockwise"></i>
+          Refresh
+        </button>
+      </div>
+
+      <div class="admin-alert" id="pageFeedback" role="alert" hidden></div>
+
+      <!-- STATISTICS -->
+      <div class="section-heading">
+        <div>
+          <h3>Subscription overview</h3>
+          <p>Summary of all seller subscription applications.</p>
+        </div>
+      </div>
+
+      <div class="stats-grid subscription-stats-grid">
+
+        <article class="stat-card">
+          <div class="stat-top">
+            <span>Total applications</span>
+            <span class="stat-icon icon-blue">
+              <i class="bi bi-file-earmark-text"></i>
+            </span>
+          </div>
+          <div class="stat-value" id="totalApplications">0</div>
+          <p>All submitted applications</p>
+        </article>
+
+        <article class="stat-card">
+          <div class="stat-top">
+            <span>Pending</span>
+            <span class="stat-icon icon-orange">
+              <i class="bi bi-hourglass-split"></i>
+            </span>
+          </div>
+          <div class="stat-value" id="pendingApplications">0</div>
+          <p>Waiting for review</p>
+        </article>
+
+        <article class="stat-card">
+          <div class="stat-top">
+            <span>Approved</span>
+            <span class="stat-icon icon-green">
+              <i class="bi bi-check-circle"></i>
+            </span>
+          </div>
+          <div class="stat-value" id="approvedApplications">0</div>
+          <p>Successfully approved</p>
+        </article>
+
+        <article class="stat-card">
+          <div class="stat-top">
+            <span>Rejected</span>
+            <span class="stat-icon icon-purple">
+              <i class="bi bi-x-circle"></i>
+            </span>
+          </div>
+          <div class="stat-value" id="rejectedApplications">0</div>
+          <p>Rejected applications</p>
+        </article>
+
+      </div>
+
+      <!-- APPLICATION PANEL -->
+      <div class="panel subscription-panel">
+
+        <div class="panel-heading subscription-panel-heading">
+          <div>
+            <h3>Subscription applications</h3>
+            <p>Review seller plan requests and submitted payment information.</p>
+          </div>
+
+          <span class="application-total-chip">
+            <i class="bi bi-collection"></i>
+            <span id="resultCount">0 applications</span>
+          </span>
+        </div>
+
+        <!-- SEARCH AND FILTER -->
+        <div class="subscription-toolbar">
+
+          <div class="subscription-search">
+            <i class="bi bi-search"></i>
+            <input
+              type="search"
+              id="searchInput"
+              placeholder="Search seller, email or transaction ID..."
+            >
+          </div>
+
+          <div class="filter-buttons" id="filterButtons">
+            <button class="filter-btn active" data-filter="all" type="button">All</button>
+            <button class="filter-btn" data-filter="pending" type="button">Pending</button>
+            <button class="filter-btn" data-filter="approved" type="button">Approved</button>
+            <button class="filter-btn" data-filter="rejected" type="button">Rejected</button>
+          </div>
+
+        </div>
+
+        <!-- LOADING -->
+        <div id="applicationsLoading" class="subscription-loading">
+          <div class="spinner-border text-primary" role="status"></div>
+          <p>Loading subscription applications...</p>
+        </div>
+
+        <!-- TABLE -->
+        <div id="applicationsTableWrap" class="subscription-table-wrap" hidden>
+
+          <table class="subscription-table">
+
+            <thead>
+              <tr>
+                <th>SELLER</th>
+                <th>PLAN</th>
+                <th>BILLING</th>
+                <th>AMOUNT</th>
+                <th>PAYMENT</th>
+                <th>SUBMITTED</th>
+                <th>STATUS</th>
+                <th>ACTION</th>
+              </tr>
+            </thead>
+
+            <tbody id="applicationsTableBody"></tbody>
+
+          </table>
+
+        </div>
+
+        <!-- EMPTY STATE -->
+        <div id="emptyApplications" class="empty-state subscription-empty" hidden>
+          <div class="empty-icon">
+            <i class="bi bi-inbox"></i>
+          </div>
+          <strong>No applications found</strong>
+          <p>Seller subscription applications will appear here.</p>
+        </div>
+
+        <div class="subscription-panel-footer">
+          <span id="subscriptionResultInfo">Showing latest applications</span>
+          <span><i class="bi bi-shield-check"></i> Admin controlled</span>
+        </div>
+
+      </div>
+
+      <footer class="page-footer">
+        <span>© sellersPro Admin</span>
+        <span>Subscription records are confidential.</span>
+      </footer>
+
+    </section>
+
+  </main>
+</div>
+
+<!-- APPLICATION DETAILS MODAL -->
+<div class="modal fade" id="applicationModal" tabindex="-1" aria-hidden="true">
+
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+
+    <div class="modal-content application-modal">
+
+      <div class="modal-header">
+        <div>
+          <p class="eyebrow mb-1">APPLICATION REVIEW</p>
+          <h5 class="modal-title">Application Details</h5>
+        </div>
+
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+
+      <div class="modal-body" id="applicationDetails"></div>
+
+      <div class="modal-footer">
+        <button type="button" class="admin-refresh-btn" data-bs-dismiss="modal">
+          Close
+        </button>
+      </div>
+
+    </div>
+
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script type="module" src="../../assets/js/admin/subscriptions.js"></script>
+
+</body>
+</html>

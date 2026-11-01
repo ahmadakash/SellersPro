@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Payment Requests | sellersPro Admin</title>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+
+  <!-- Same shared styles as Dashboard -->
+  <link rel="stylesheet" href="../../assets/css/dashboard.css">
+  <link rel="stylesheet" href="../../assets/css/admin.css">
+
+  <!-- Page-specific styles only -->
+  <link rel="stylesheet" href="../../assets/css/payments.css">
+</head>
+
+<body class="admin-dashboard">
+
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<div class="app-shell">
+
+  <aside class="sidebar" id="sidebar">
+    <a href="dashboard.html" class="brand">
+      <span class="brand-icon"><i class="bi bi-shop"></i></span>
+      <span>sellers<span class="brand-blue">Pro</span></span>
+    </a>
+
+    <div class="admin-mode-label">
+      <i class="bi bi-shield-lock-fill"></i> ADMIN CONTROL CENTER
+    </div>
+
+    <div class="nav-label">MANAGEMENT</div>
+
+    <nav class="side-nav">
+      <a class="nav-link" href="dashboard.html">
+        <i class="bi bi-grid-1x2"></i><span>Overview</span>
+      </a>
+
+      <a class="nav-link" href="sellers.html">
+        <i class="bi bi-people"></i><span>Sellers / Users</span>
+      </a>
+
+      <a class="nav-link" href="subscriptions.html">
+        <i class="bi bi-gem"></i><span>Subscriptions</span>
+      </a>
+
+      <a class="nav-link active" href="payments.html">
+        <i class="bi bi-wallet2"></i><span>Payment Requests</span>
+        <span class="nav-count" id="pendingPaymentCount">—</span>
+      </a>
+
+      <a class="nav-link" href="pricing.html">
+        <i class="bi bi-tags"></i><span>Plans & Pricing</span>
+      </a>
+    </nav>
+
+    <div class="nav-label admin-nav-label">SECURITY & RECORDS</div>
+
+    <nav class="side-nav">
+      <a class="nav-link" href="audit-logs.html">
+        <i class="bi bi-clock-history"></i><span>Admin Activity</span>
+      </a>
+    </nav>
+
+    <div class="sidebar-bottom">
+      <div class="admin-sidebar-card">
+        <i class="bi bi-shield-check"></i>
+        <strong>Administrator</strong>
+        <p>Manage your SellersPro platform securely.</p>
+      </div>
+
+      <button class="nav-link logout-btn" id="adminLogoutBtn" type="button">
+        <i class="bi bi-box-arrow-left"></i><span>Log out</span>
+      </button>
+    </div>
+  </aside>
+
+  <main class="main-area">
+
+    <header class="topbar">
+      <button class="menu-toggle" id="menuToggle" aria-label="Toggle menu">
+        <i class="bi bi-list"></i>
+      </button>
+
+      <div class="topbar-title">
+        <span class="eyebrow">SELLERSPRO ADMIN</span>
+        <h1>Payment Requests</h1>
+      </div>
+
+      <div class="admin-user-area">
+        <span class="admin-online-dot"></span>
+        <span class="admin-user-avatar">
+          <i class="bi bi-shield-lock"></i>
+        </span>
+        <span class="admin-user-info">
+          <strong id="adminName">Administrator</strong>
+          <small id="adminEmailLabel">Loading...</small>
+        </span>
+      </div>
+    </header>
+
+    <section class="dashboard-content admin-content payments-content">
+
+      <div class="welcome-row">
+        <div>
+          <p class="eyebrow">PAYMENT MANAGEMENT</p>
+          <h2>Payment <span>Requests</span></h2>
+          <p class="muted">
+            Review seller payment submissions and verify transaction information.
+          </p>
+        </div>
+
+        <button class="admin-refresh-btn" id="refreshPaymentsBtn" type="button">
+          <i class="bi bi-arrow-clockwise"></i> Refresh
+        </button>
+      </div>
+
+      <div class="admin-alert" id="paymentsNotice" role="alert" hidden></div>
+
+      <!-- Summary -->
+      <div class="section-heading">
+        <div>
+          <h3>Payment overview</h3>
+          <p>Payment request status across seller accounts.</p>
+        </div>
+      </div>
+
+      <div class="stats-grid payment-stats-grid">
+
+        <article class="stat-card">
+          <div class="stat-top">
+            <span>Total requests</span>
+            <span class="stat-icon icon-blue">
+              <i class="bi bi-wallet2"></i>
+            </span>
+          </div>
+          <div class="stat-value" id="totalPayments">—</div>
+          <p>All payment submissions</p>
+        </article>
+
+        <article class="stat-card">
+          <div class="stat-top">
+            <span>Pending verification</span>
+            <span class="stat-icon icon-orange">
+              <i class="bi bi-hourglass-split"></i>
+            </span>
+          </div>
+          <div class="stat-value" id="pendingPayments">—</div>
+          <p>Awaiting review</p>
+        </article>
+
+        <article class="stat-card">
+          <div class="stat-top">
+            <span>Approved</span>
+            <span class="stat-icon icon-green">
+              <i class="bi bi-check-circle"></i>
+            </span>
+          </div>
+          <div class="stat-value" id="approvedPayments">—</div>
+          <p>Verified payments</p>
+        </article>
+
+        <article class="stat-card">
+          <div class="stat-top">
+            <span>Rejected</span>
+            <span class="stat-icon icon-purple">
+              <i class="bi bi-x-circle"></i>
+            </span>
+          </div>
+          <div class="stat-value" id="rejectedPayments">—</div>
+          <p>Rejected submissions</p>
+        </article>
+
+      </div>
+
+      <!-- Payment records -->
+      <div class="panel payment-panel">
+
+        <div class="payment-panel-heading">
+          <div>
+            <h3>Payment records</h3>
+            <p>Review payment method, sender number and transaction ID.</p>
+          </div>
+
+          <span class="payment-record-count">
+            <i class="bi bi-receipt"></i>
+            <span id="paymentResultCount">0 records</span>
+          </span>
+        </div>
+
+        <div class="payment-toolbar">
+
+          <div class="payment-search">
+            <i class="bi bi-search"></i>
+            <input
+              type="search"
+              id="paymentSearch"
+              placeholder="Search seller, number or transaction ID..."
+            >
+          </div>
+
+          <div class="payment-filters" id="paymentFilters">
+            <button class="payment-filter-btn active" data-filter="all" type="button">All</button>
+            <button class="payment-filter-btn" data-filter="pending" type="button">Pending</button>
+            <button class="payment-filter-btn" data-filter="approved" type="button">Approved</button>
+            <button class="payment-filter-btn" data-filter="rejected" type="button">Rejected</button>
+          </div>
+
+        </div>
+
+        <div class="payment-loading" id="paymentLoading">
+          <div class="spinner-border text-primary" role="status"></div>
+          <p>Loading payment records...</p>
+        </div>
+
+        <div class="payment-table-wrap" id="paymentTableWrap" hidden>
+          <table class="payment-table">
+            <thead>
+              <tr>
+                <th>SELLER</th>
+                <th>METHOD</th>
+                <th>SENDER NUMBER</th>
+                <th>TRANSACTION ID</th>
+                <th>AMOUNT</th>
+                <th>SUBMITTED</th>
+                <th>STATUS</th>
+                <th>ACTION</th>
+              </tr>
+            </thead>
+            <tbody id="paymentTableBody"></tbody>
+          </table>
+        </div>
+
+        <div class="payment-empty" id="paymentEmpty" hidden>
+          <div class="payment-empty-icon">
+            <i class="bi bi-wallet2"></i>
+          </div>
+          <strong>No payment records found</strong>
+          <p>Payment submissions from sellers will appear here.</p>
+        </div>
+
+        <div class="payment-panel-footer">
+          <span id="paymentFooterInfo">Payment records</span>
+          <span><i class="bi bi-shield-check"></i> Secure review area</span>
+        </div>
+
+      </div>
+
+      <footer class="page-footer">
+        <span>© sellersPro Admin</span>
+        <span>Payment information is confidential.</span>
+      </footer>
+
+    </section>
+  </main>
+</div>
+
+<!-- Payment details modal -->
+<div class="modal fade" id="paymentDetailsModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content payment-modal">
+
+      <div class="modal-header">
+        <div>
+          <p class="eyebrow mb-1">PAYMENT REVIEW</p>
+          <h5 class="modal-title">Payment Details</h5>
+        </div>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+
+      <div class="modal-body" id="paymentDetailsBody"></div>
+
+      <div class="modal-footer">
+        <button type="button" class="admin-refresh-btn" data-bs-dismiss="modal">
+          Close
+        </button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script type="module" src="../../assets/js/admin/payments.js"></script>
+
+</body>
+</html>

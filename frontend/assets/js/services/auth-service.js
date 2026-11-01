@@ -1,5 +1,5 @@
-// this is the auth service file, it contains the function for registering, logging in and logging out users. It uses the firebase auth and firestore services to perform these actions.
-// it is backend file that is used to communicate with firebase auth and firestore services.
+// Auth service: register, login, logout and password reset.
+// It talks to Firebase Authentication and the Firestore "users" collection.
 import {
     createUserWithEmailAndPassword,
     signInWithEmailAndPassword,
@@ -8,7 +8,13 @@ import {
     RecaptchaVerifier,
     signInWithPhoneNumber,
     sendPasswordResetEmail,
-    signOut
+    signOut,
+    deleteUser,
+    updateProfile,
+    getAdditionalUserInfo,
+    setPersistence,
+    browserLocalPersistence,
+    browserSessionPersistence
 } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
 
 import {
@@ -22,6 +28,20 @@ import {
     auth,
     db
 } from "../config/firebase.js";
+
+
+/* =========================================
+   OUR OWN ERROR TYPE
+   code "app/..." means the message is safe to show to the user
+========================================= */
+
+export class AuthFlowError extends Error {
+    constructor(code, message) {
+        super(message);
+        this.name = "AuthFlowError";
+        this.code = code;
+    }
+}
 
 
 /* =========================================
@@ -84,6 +104,39 @@ export async function createUserProfile(
 
 
 /* =========================================
+   REMOVE A JUST-CREATED AUTH ACCOUNT
+
+   Only a brand new account is deleted. If the person already had an
+   account (for example an admin or an older seller), we only sign out,
+   so a real account is never destroyed by a failed login attempt.
+========================================= */
+
+async function discardUnregisteredAccount(result) {
+
+    const isNewAccount =
+        getAdditionalUserInfo(result)?.isNewUser === true;
+
+    try {
+
+        if (isNewAccount) {
+            await deleteUser(result.user);
+        } else {
+            await signOut(auth);
+        }
+
+    } catch (error) {
+
+        console.error(
+            "Could not remove the unregistered account:",
+            error
+        );
+
+        await signOut(auth).catch(() => {});
+    }
+}
+
+
+/* =========================================
    EMAIL REGISTRATION
 ========================================= */
 
@@ -104,34 +157,69 @@ export async function registerWithEmail({
             password
         );
 
+    try {
 
-    return await createUserProfile(
-        result.user,
-        {
+        // Nice-to-have: lets other screens use displayName
+        await updateProfile(
+            result.user,
+            { displayName: name }
+        ).catch(() => {});
 
-            name,
+        return await createUserProfile(
+            result.user,
+            {
 
-            email,
+                name,
 
-            phone,
+                email,
 
-            businessName,
+                phone,
 
-            authProvider: "email"
+                businessName,
 
+                authProvider: "email"
+
+            }
+        );
+
+    } catch (error) {
+
+        // Profile could not be saved: remove the new login so the person
+        // is not left with an account that has no seller profile.
+        console.error(
+            "Profile creation failed, removing the new account:",
+            error
+        );
+
+        try {
+            await deleteUser(result.user);
+        } catch {
+            await signOut(auth).catch(() => {});
         }
-    );
+
+        throw error;
+    }
 }
 
 
 /* =========================================
    EMAIL LOGIN
+   remember = true  -> stay signed in after closing the browser
+   remember = false -> signed out when the browser/tab session ends
 ========================================= */
 
 export async function loginWithEmail(
     email,
-    password
+    password,
+    { remember = true } = {}
 ) {
+
+    await setPersistence(
+        auth,
+        remember
+            ? browserLocalPersistence
+            : browserSessionPersistence
+    );
 
     const result =
         await signInWithEmailAndPassword(
@@ -145,10 +233,11 @@ export async function loginWithEmail(
 
 
 /* =========================================
-   GOOGLE LOGIN
+   GOOGLE LOGIN (registered sellers only)
 ========================================= */
 
 export async function loginWithGoogle() {
+
     const provider = new GoogleAuthProvider();
     const result = await signInWithPopup(auth, provider);
 
@@ -156,17 +245,12 @@ export async function loginWithGoogle() {
     const existingProfile = await getDoc(userRef);
 
     if (!existingProfile.exists()) {
-        // Do not retain a Google-created account when no
-        // registered application profile exists.
-        try {
-            await deleteUser(result.user);
-        } catch (error) {
-            console.error("Could not remove unregistered Google user:", error);
-            await signOut(auth);
-        }
 
-        throw new Error(
-            "No registered sellersPro account was found. Please register first."
+        await discardUnregisteredAccount(result);
+
+        throw new AuthFlowError(
+            "app/not-registered",
+            "No SellersPro account was found for this Google account. Please create an account first."
         );
     }
 
@@ -178,9 +262,25 @@ export async function loginWithGoogle() {
    PHONE OTP
 ========================================= */
 
+export function clearPhoneRecaptcha() {
+
+    try {
+        window.recaptchaVerifier?.clear();
+    } catch (error) {
+        console.warn("reCAPTCHA clear failed:", error);
+    }
+
+    window.recaptchaVerifier = null;
+}
+
+
 export function setupPhoneRecaptcha(
     containerId
 ) {
+
+    // Always start from a clean verifier. Re-using a used one is what
+    // causes "reCAPTCHA has already been rendered" errors on retry.
+    clearPhoneRecaptcha();
 
     window.recaptchaVerifier =
         new RecaptchaVerifier(
@@ -197,8 +297,16 @@ export function setupPhoneRecaptcha(
 
 export async function sendPhoneOTP(
     phoneNumber,
-    recaptchaVerifier
+    recaptchaVerifier = window.recaptchaVerifier
 ) {
+
+    if (!recaptchaVerifier) {
+
+        throw new AuthFlowError(
+            "app/recaptcha-missing",
+            "Security check is not ready. Please try again."
+        );
+    }
 
     const confirmationResult =
         await signInWithPhoneNumber(
@@ -220,8 +328,9 @@ export async function verifyPhoneOTP(
 
     if (!window.confirmationResult) {
 
-        throw new Error(
-            "Please request the OTP first."
+        throw new AuthFlowError(
+            "app/otp-not-requested",
+            "Please request a code first."
         );
     }
 
@@ -230,6 +339,8 @@ export async function verifyPhoneOTP(
         await window.confirmationResult.confirm(
             otp
         );
+
+    window.confirmationResult = null;
 
 
     return await createUserProfile(
