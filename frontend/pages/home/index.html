@@ -1,361 +1,415 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <meta charset="UTF-8">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#356df3">
 
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
+  <!-- ===== SEO ===== -->
+  <title>sellersPro | Order & Stock Management for Small Sellers</title>
+  <meta
+    name="description"
+    content="Manage orders, stock, customers and sales in one simple dashboard. Built for small online sellers in Bangladesh. Free plan with 10 orders a month."
+  >
+  <meta name="robots" content="index, follow, max-image-preview:large">
+  <meta name="author" content="sellersPro">
 
-    <title>SellerPro - Grow Your Business</title>
+  <!-- Social sharing -->
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="sellersPro">
+  <meta property="og:title" content="sellersPro | Order & Stock Management for Small Sellers">
+  <meta property="og:description" content="Track orders, keep stock up to date and see your sales in one simple dashboard. Free to start.">
+  <meta property="og:locale" content="en_US">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="sellersPro | Order & Stock Management for Small Sellers">
+  <meta name="twitter:description" content="Track orders, keep stock up to date and see your sales in one simple dashboard. Free to start.">
 
-    <link
-        rel="stylesheet"
-        href="../../assets/css/global.css"
-    >
+  <!--
+    ADD THESE THREE LINES once your live domain is known (replace https://your-domain.com):
+    <link rel="canonical" href="https://your-domain.com/">
+    <meta property="og:url" content="https://your-domain.com/">
+    <meta property="og:image" content="https://your-domain.com/assets/images/share-image.png">
+    (And change twitter:card to summary_large_image if you add a 1200x630 share image.)
+  -->
 
-    <link
-        rel="stylesheet"
-        href="../../assets/css/home.css"
-    >
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%23356df3'/%3E%3Ctext x='32' y='44' font-size='36' font-weight='800' text-anchor='middle' fill='white' font-family='Arial'%3ES%3C/text%3E%3C/svg%3E">
+
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+  <link rel="stylesheet" href="../../assets/css/global.css">
+  <link rel="stylesheet" href="../../assets/css/home.css">
+
+  <!-- Structured data: helps Google understand what the product is -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "sellersPro",
+    "applicationCategory": "BusinessApplication",
+    "operatingSystem": "Web",
+    "description": "A simple dashboard for small online sellers to manage orders, products, stock, customers and sales reports.",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "BDT",
+      "description": "Free plan with 10 orders every month"
+    }
+  }
+  </script>
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "What is sellersPro?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "sellersPro is a simple web dashboard for small online sellers. You can record orders, keep your products and stock organised, save customer details, print receipts and read your sales reports in one place."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Is sellersPro free?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes. You can start on the Free plan, which includes 10 orders every month. No credit card is needed to sign up."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Who is sellersPro for?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "It is made for small sellers and home businesses who take orders through a shop, Facebook, WhatsApp or phone calls and want to stop tracking everything in notebooks and spreadsheets."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Do I need to install anything?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "No. sellersPro runs in your web browser, so you can use it on a phone, tablet or computer."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Is my business data private?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes. Your products, customers and orders are stored under your own account and are not visible to other sellers."
+        }
+      }
+    ]
+  }
+  </script>
 </head>
 
-<body>
+<body class="home-page">
 
-    <!-- ================= NAVBAR ================= -->
+<a class="skip-link" href="#main">Skip to main content</a>
 
-    <header class="navbar">
+<!-- ================= HEADER ================= -->
+<header class="site-header">
+  <div class="container header-inner">
 
-        <div class="brand">
-            <div class="brand-icon">S</div>
-            <span>SellersPro</span>
+    <a class="brand" href="#top" aria-label="sellersPro home">
+      <span class="brand-icon"><i class="bi bi-shop" aria-hidden="true"></i></span>
+      <span class="brand-text">sellers<span>Pro</span></span>
+    </a>
+
+    <nav class="site-nav" aria-label="Main">
+      <a href="#features">Features</a>
+      <a href="#how-it-works">How it works</a>
+      <a href="#faq">FAQ</a>
+    </nav>
+
+    <div class="header-actions">
+      <a class="btn btn-ghost" href="../auth/login.html">Sign in</a>
+      <a class="btn btn-primary" href="../auth/register.html">Get started free</a>
+    </div>
+
+  </div>
+</header>
+
+<main id="main">
+
+  <!-- ================= HERO ================= -->
+  <section class="hero" id="top" aria-labelledby="hero-title">
+    <div class="container hero-grid">
+
+      <div class="hero-copy">
+        <span class="pill"><i class="bi bi-gift" aria-hidden="true"></i> Free to start</span>
+
+        <h1 id="hero-title">
+          Manage your orders, stock and sales
+          <span>in one simple place.</span>
+        </h1>
+
+        <p class="hero-lead">
+          sellersPro is an easy dashboard for small online sellers in Bangladesh.
+          Record orders, keep your stock up to date and see how your shop is doing,
+          without notebooks or spreadsheets.
+        </p>
+
+        <div class="hero-buttons">
+          <a class="btn btn-primary btn-lg" href="../auth/register.html">
+            Start for free <i class="bi bi-arrow-right" aria-hidden="true"></i>
+          </a>
+          <a class="btn btn-outline btn-lg" href="../auth/login.html">Sign in</a>
         </div>
 
-        <div class="nav-actions">
+        <ul class="hero-checks">
+          <li><i class="bi bi-check-circle-fill" aria-hidden="true"></i> 10 free orders every month</li>
+          <li><i class="bi bi-check-circle-fill" aria-hidden="true"></i> No credit card needed</li>
+          <li><i class="bi bi-check-circle-fill" aria-hidden="true"></i> Works on phone and computer</li>
+        </ul>
+      </div>
 
-            <a
-                href="../auth/login.html"
-                class="signin-btn"
-            >
-                Sign In
-            </a>
+      <!-- Illustration of the dashboard (sample data) -->
+      <div class="hero-visual" aria-hidden="true">
+        <div class="mock">
+          <div class="mock-top">
+            <span class="mock-dots"><i></i><i></i><i></i></span>
+            <span class="mock-label">Sample preview</span>
+          </div>
 
-            <a
-                href="../auth/register.html"
-                class="primary-btn"
-            >
-                Get Started Free
-            </a>
+          <div class="mock-stats">
+            <div><small>Orders</small><strong>24</strong></div>
+            <div><small>Products</small><strong>58</strong></div>
+            <div><small>Low stock</small><strong class="is-warn">3</strong></div>
+          </div>
 
+          <div class="mock-list">
+            <div class="mock-list-head">Recent orders</div>
+
+            <div class="mock-row">
+              <span class="mock-avatar">R</span>
+              <span class="mock-info"><strong>Fashion Store</strong><small>ORD-1A2B</small></span>
+              <span class="badge is-delivered">Delivered</span>
+              <span class="mock-amount">৳1,060</span>
+            </div>
+            <div class="mock-row">
+              <span class="mock-avatar is-purple">N</span>
+              <span class="mock-info"><strong>Elite Store</strong><small>ORD-3C4D</small></span>
+              <span class="badge is-processing">Processing</span>
+              <span class="mock-amount">৳2,450</span>
+            </div>
+            <div class="mock-row">
+              <span class="mock-avatar is-orange">K</span>
+              <span class="mock-info"><strong>Future Shop</strong><small>ORD-5E6F</small></span>
+              <span class="badge is-pending">Pending</span>
+              <span class="mock-amount">৳780</span>
+            </div>
+          </div>
         </div>
-
-    </header>
-
-
-    <!-- ================= HERO ================= -->
-
-    <main>
-
-        <section class="hero">
-
-            <div class="hero-content">
-
-                <div class="free-badge">
-                    ✦ Free to start — no credit card required
-                </div>
-
-                <h1>
-                    Run your shop.
-                    <span>Grow your business.</span>
-                </h1>
-
-                <p>
-                    SellerPro gives small business owners a clean,
-                    simple dashboard to manage orders, products,
-                    customers, inventory, and sales — all in one place.
-                </p>
-
-                <div class="hero-buttons">
-
-                    <a
-                        href="../auth/register.html"
-                        class="primary-btn hero-btn"
-                    >
-                        Start for Free →
-                    </a>
-
-                    <a
-                        href="../auth/login.html"
-                        class="secondary-btn"
-                    >
-                        Sign In to Dashboard
-                    </a>
-
-                </div>
-
-                <small>
-                    Trusted by small-shop owners and beginners
-                </small>
-
-            </div>
-
-        </section>
-
-
-        <!-- ================= FEATURES ================= -->
-
-        <section class="features-section">
-
-            <div class="section-heading">
-
-                <h2>
-                    Everything a small seller needs
-                </h2>
-
-                <p>
-                    Simple tools. Real results. No complexity.
-                </p>
-
-            </div>
-
-
-            <div class="feature-grid">
-
-                <article class="feature-card">
-
-                    <div class="feature-icon">▣</div>
-
-                    <h3>
-                        Order Management
-                    </h3>
-
-                    <p>
-                        Create and track orders from placement
-                        to delivery. Generate professional
-                        receipts instantly.
-                    </p>
-
-                </article>
-
-
-                <article class="feature-card">
-
-                    <div class="feature-icon">⌂</div>
-
-                    <h3>
-                        Product Catalog
-                    </h3>
-
-                    <p>
-                        Manage your products, pricing, and
-                        categories in one organized place.
-                    </p>
-
-                </article>
-
-
-                <article class="feature-card">
-
-                    <div class="feature-icon">▥</div>
-
-                    <h3>
-                        Inventory Tracking
-                    </h3>
-
-                    <p>
-                        Know your stock levels at a glance.
-                        Get alerts before you run out.
-                    </p>
-
-                </article>
-
-
-                <article class="feature-card">
-
-                    <div class="feature-icon">♟</div>
-
-                    <h3>
-                        Customer Management
-                    </h3>
-
-                    <p>
-                        Store customer details and view
-                        their full order history.
-                    </p>
-
-                </article>
-
-
-                <article class="feature-card">
-
-                    <div class="feature-icon">▤</div>
-
-                    <h3>
-                        Sales Analytics
-                    </h3>
-
-                    <p>
-                        Understand your revenue, profit,
-                        and top-selling products.
-                    </p>
-
-                </article>
-
-
-                <article class="feature-card">
-
-                    <div class="feature-icon">▥</div>
-
-                    <h3>
-                        Printable Receipts
-                    </h3>
-
-                    <p>
-                        Professional receipts ready to hand
-                        to customers or print from any device.
-                    </p>
-
-                </article>
-
-            </div>
-
-        </section>
-
-
-        <!-- ================= RECEIPT SECTION ================= -->
-
-        <section class="receipt-section">
-
-            <div class="receipt-content">
-
-                <span class="feature-label">
-                    NEW FEATURE
-                </span>
-
-                <h2>
-                    Print receipts in seconds
-                </h2>
-
-                <p>
-                    Every completed order generates a professional
-                    printable receipt. Share it with your customer
-                    immediately — works on any printer, any device.
-                </p>
-
-                <ul>
-
-                    <li>
-                        Instant receipt generation from any order
-                    </li>
-
-                    <li>
-                        Compatible with A4 and thermal printers
-                    </li>
-
-                    <li>
-                        Clean, customer-friendly format
-                    </li>
-
-                    <li>
-                        Print or download as PDF
-                    </li>
-
-                </ul>
-
-            </div>
-
-
-            <div class="receipt-preview">
-
-                <div class="receipt-paper">
-
-                    <h3>
-                        FASHION BD
-                    </h3>
-
-                    <small>
-                        SALE RECEIPT
-                    </small>
-
-                    <hr>
-
-                    <p>Order: ORD-1026</p>
-                    <p>Date: 27 Sep 2026</p>
-                    <p>Customer: Akash Ahmed</p>
-
-                    <hr>
-
-                    <div class="receipt-row">
-                        <span>Black T-Shirt</span>
-                        <span>৳ 1,000</span>
-                    </div>
-
-                    <div class="receipt-row">
-                        <span>Blue Jeans</span>
-                        <span>৳ 1,800</span>
-                    </div>
-
-                    <hr>
-
-                    <div class="receipt-total">
-                        <span>TOTAL</span>
-                        <strong>৳ 3,100</strong>
-                    </div>
-
-                    <p class="thank-you">
-                        Thank you for your purchase!
-                    </p>
-
-                </div>
-
-            </div>
-
-        </section>
-
-
-        <!-- ================= FINAL CTA ================= -->
-
-        <section class="final-cta">
-
-            <h2>
-                Ready to organize your business?
-            </h2>
-
-            <p>
-                Join thousands of small sellers using SellerPro
-                to run smoother shops.
-            </p>
-
-            <a
-                href="../auth/register.html"
-                class="primary-btn"
-            >
-                Create Free Account →
-            </a>
-
-            <small>
-                Free for the first 10 orders per month.
-                No credit card required.
-            </small>
-
-        </section>
-
-    </main>
-
-
-    <!-- ================= FOOTER ================= -->
-
-    <footer class="footer">
-
-        <span>
-            © 2026 SellerPro. Built for small business owners.
-        </span>
-
-    </footer>
-
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ================= HOW IT WORKS ================= -->
+  <section class="section section-soft" id="how-it-works" aria-labelledby="how-title">
+    <div class="container">
+
+      <div class="section-head">
+        <h2 id="how-title">Get started in three easy steps</h2>
+        <p>No training needed. If you can use a phone, you can use sellersPro.</p>
+      </div>
+
+      <ol class="steps">
+        <li class="step">
+          <span class="step-number">1</span>
+          <h3>Add your products</h3>
+          <p>Save each product's name, price and stock once. Everything stays in one tidy list.</p>
+        </li>
+        <li class="step">
+          <span class="step-number">2</span>
+          <h3>Record every order</h3>
+          <p>Choose a customer and the products they bought. Your stock updates by itself.</p>
+        </li>
+        <li class="step">
+          <span class="step-number">3</span>
+          <h3>Track and grow</h3>
+          <p>Follow delivery status, print receipts and read your sales reports.</p>
+        </li>
+      </ol>
+
+    </div>
+  </section>
+
+  <!-- ================= FEATURES ================= -->
+  <section class="section" id="features" aria-labelledby="features-title">
+    <div class="container">
+
+      <div class="section-head">
+        <h2 id="features-title">Everything a small seller needs</h2>
+        <p>Simple tools for the daily work of running a shop.</p>
+      </div>
+
+      <div class="feature-grid">
+
+        <article class="feature-card">
+          <span class="feature-icon"><i class="bi bi-receipt" aria-hidden="true"></i></span>
+          <h3>Order management</h3>
+          <p>Create orders, move them from pending to delivered, and keep a full history of every sale.</p>
+        </article>
+
+        <article class="feature-card">
+          <span class="feature-icon"><i class="bi bi-box-seam" aria-hidden="true"></i></span>
+          <h3>Product catalog</h3>
+          <p>Keep prices, categories and product codes organised, and find any item in seconds.</p>
+        </article>
+
+        <article class="feature-card">
+          <span class="feature-icon"><i class="bi bi-boxes" aria-hidden="true"></i></span>
+          <h3>Stock tracking</h3>
+          <p>Stock goes down with each order and comes back if you cancel. Low-stock alerts warn you early.</p>
+        </article>
+
+        <article class="feature-card">
+          <span class="feature-icon"><i class="bi bi-people" aria-hidden="true"></i></span>
+          <h3>Customer records</h3>
+          <p>Save names, phone numbers and addresses so repeat orders take only a few taps.</p>
+        </article>
+
+        <article class="feature-card">
+          <span class="feature-icon"><i class="bi bi-bar-chart-line" aria-hidden="true"></i></span>
+          <h3>Sales analytics</h3>
+          <p>See your revenue, order status and best-selling products, then download reports as CSV or PDF.</p>
+        </article>
+
+        <article class="feature-card">
+          <span class="feature-icon"><i class="bi bi-printer" aria-hidden="true"></i></span>
+          <h3>Printable receipts</h3>
+          <p>Print a clean receipt for any order, or save it as a PDF straight from your browser.</p>
+        </article>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= RECEIPT ================= -->
+  <section class="section section-soft" aria-labelledby="receipt-title">
+    <div class="container receipt-grid">
+
+      <div class="receipt-copy">
+        <span class="pill"><i class="bi bi-printer" aria-hidden="true"></i> Receipts</span>
+        <h2 id="receipt-title">Give every customer a proper receipt</h2>
+        <p>
+          Open any order and print its receipt in one click. It shows the order number,
+          date, customer, items and total, so your customers always know what they paid for.
+        </p>
+        <ul class="check-list">
+          <li><i class="bi bi-check-circle-fill" aria-hidden="true"></i> Ready from any order, instantly</li>
+          <li><i class="bi bi-check-circle-fill" aria-hidden="true"></i> Clean layout your customers can read</li>
+          <li><i class="bi bi-check-circle-fill" aria-hidden="true"></i> Print it or save it as a PDF</li>
+        </ul>
+      </div>
+
+      <div class="receipt-visual" aria-hidden="true">
+        <div class="receipt-paper">
+          <h3>FASHION BD</h3>
+          <small>Order receipt</small>
+          <hr>
+          <p>Order: ORD-1026</p>
+          <p>Date: 27 Sep 2026</p>
+          <p>Customer: Akash Ahmed</p>
+          <hr>
+          <div class="receipt-row"><span>Black T-Shirt</span><span>৳1,000</span></div>
+          <div class="receipt-row"><span>Blue Jeans</span><span>৳1,800</span></div>
+          <div class="receipt-row"><span>Delivery</span><span>৳300</span></div>
+          <hr>
+          <div class="receipt-total"><span>Total</span><strong>৳3,100</strong></div>
+          <p class="thank-you">Thank you for your purchase!</p>
+        </div>
+        <span class="receipt-caption">Sample receipt</span>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ================= FAQ ================= -->
+  <section class="section" id="faq" aria-labelledby="faq-title">
+    <div class="container container-narrow">
+
+      <div class="section-head">
+        <h2 id="faq-title">Questions, answered</h2>
+        <p>Everything you need to know before you start.</p>
+      </div>
+
+      <div class="faq">
+        <details>
+          <summary>What is sellersPro?</summary>
+          <p>sellersPro is a simple web dashboard for small online sellers. You can record orders, keep your products and stock organised, save customer details, print receipts and read your sales reports in one place.</p>
+        </details>
+
+        <details>
+          <summary>Is sellersPro free?</summary>
+          <p>Yes. You can start on the Free plan, which includes 10 orders every month. No credit card is needed to sign up.</p>
+        </details>
+
+        <details>
+          <summary>Who is sellersPro for?</summary>
+          <p>It is made for small sellers and home businesses who take orders through a shop, Facebook, WhatsApp or phone calls and want to stop tracking everything in notebooks and spreadsheets.</p>
+        </details>
+
+        <details>
+          <summary>Do I need to install anything?</summary>
+          <p>No. sellersPro runs in your web browser, so you can use it on a phone, tablet or computer.</p>
+        </details>
+
+        <details>
+          <summary>Is my business data private?</summary>
+          <p>Yes. Your products, customers and orders are stored under your own account and are not visible to other sellers.</p>
+        </details>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ================= FINAL CTA ================= -->
+  <section class="cta" aria-labelledby="cta-title">
+    <div class="container">
+      <h2 id="cta-title">Ready to organise your business?</h2>
+      <p>Create your free account in under a minute and record your first order today.</p>
+      <a class="btn btn-light btn-lg" href="../auth/register.html">
+        Create free account <i class="bi bi-arrow-right" aria-hidden="true"></i>
+      </a>
+      <small>The Free plan includes 10 orders every month. No credit card required.</small>
+    </div>
+  </section>
+
+</main>
+
+<!-- ================= FOOTER ================= -->
+<footer class="site-footer">
+  <div class="container footer-inner">
+
+    <div class="footer-brand">
+      <a class="brand brand-light" href="#top" aria-label="sellersPro home">
+        <span class="brand-icon"><i class="bi bi-shop" aria-hidden="true"></i></span>
+        <span class="brand-text">sellers<span>Pro</span></span>
+      </a>
+      <p>Simple tools for growing businesses.</p>
+    </div>
+
+    <nav class="footer-nav" aria-label="Footer">
+      <a href="#features">Features</a>
+      <a href="#how-it-works">How it works</a>
+      <a href="#faq">FAQ</a>
+      <a href="../auth/login.html">Sign in</a>
+      <a href="../auth/register.html">Create account</a>
+    </nav>
+
+  </div>
+
+  <div class="container footer-bottom">
+    <span>© 2026 sellersPro. Built for small business owners.</span>
+  </div>
+</footer>
 
 </body>
-
 </html>

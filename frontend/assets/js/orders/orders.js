@@ -118,6 +118,86 @@ function orderDate(order) {
   return order.createdAt || order.updatedAt || null;
 }
 
+const FREE_MONTHLY_ORDER_LIMIT = 10;
+
+function getDateValue(value) {
+  if (!value) return null;
+
+  const date = typeof value.toDate === "function"
+    ? value.toDate()
+    : new Date(value);
+
+  return Number.isNaN(date.getTime()) ? null : date;
+}
+
+function getCurrentMonthKey() {
+  const now = new Date();
+  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+}
+
+function isSameMonth(value, monthKey) {
+  const date = getDateValue(value);
+  if (!date) return false;
+
+  const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
+  return key === monthKey;
+}
+
+function getOrderMonthCount(orderList, monthKey) {
+  return orderList.filter((order) =>
+    isSameMonth(order.createdAt, monthKey)
+  ).length;
+}
+
+/*
+ * Check Pro expiry immediately before creating an order.
+ * If expired, permanently update the seller profile to Free.
+ */
+async function syncExpiredSubscription() {
+  const profileRef = doc(db, "users", currentUser.uid);
+
+  return runTransaction(db, async (transaction) => {
+    const snapshot = await transaction.get(profileRef);
+
+    if (!snapshot.exists()) {
+      throw new Error("Seller profile not found. Please contact support.");
+    }
+
+    const profile = snapshot.data();
+    const plan = String(profile.plan || "free").toLowerCase();
+    const subscriptionStatus = String(
+      profile.subscriptionStatus || ""
+    ).toLowerCase();
+
+    const expiryDate = getDateValue(
+      profile.subscriptionEnd ||
+      profile.subscriptionEndDate ||
+      profile.currentPeriodEnd
+    );
+
+    const isExpiredPro =
+      plan === "pro" &&
+      subscriptionStatus === "active" &&
+      (!expiryDate || expiryDate.getTime() <= Date.now());
+
+    if (isExpiredPro) {
+      transaction.update(profileRef, {
+        plan: "free",
+        subscriptionStatus: "expired",
+        updatedAt: serverTimestamp()
+      });
+
+      return {
+        ...profile,
+        plan: "free",
+        subscriptionStatus: "expired"
+      };
+    }
+
+    return profile;
+  });
+}
+
 function getOrderNumber(order) {
   return order.orderNumber || order.id;
 }
@@ -294,8 +374,6 @@ $("logoutBtn").addEventListener("click", async () => {
 
 /* Seller profile: same users/{uid} document as the other pages */
 async function loadProfile() {
-  const profileRef = userDocument("", "");
-  // Use the user document directly rather than a nested collection.
   const sellerRef = doc(db, "users", currentUser.uid);
   const snapshot = await getDoc(sellerRef);
   const profile = snapshot.exists() ? snapshot.data() : {};
@@ -619,7 +697,8 @@ $("deliveryCharge").addEventListener("input", updateOrderTotals);
 
 $("deliveryArea").addEventListener("change", updateOrderTotals);
 
-/* Create an order and decrement stock atomically */
+
+/* Create an order with subscription expiry and monthly limit checks */
 $("orderForm").addEventListener("submit", async (event) => {
   event.preventDefault();
   showFormFeedback("");
@@ -655,7 +734,9 @@ $("orderForm").addEventListener("submit", async (event) => {
     !Number.isFinite(item.unitPrice) ||
     item.unitPrice < 0
   )) {
-    showFormFeedback("Select a product and enter a valid quantity and unit price for every item.");
+    showFormFeedback(
+      "Select a product and enter a valid quantity and unit price for every item."
+    );
     return;
   }
 
@@ -673,11 +754,36 @@ $("orderForm").addEventListener("submit", async (event) => {
   button.disabled = true;
 
   try {
-    const orderRef = doc(userCollection("orders"));
-    const itemRefs = submittedItems.map(() => doc(collection(orderRef, "items")));
-    const deliveryCharge = getDeliveryCharge();
+    /*
+     * Step 1: Check subscription expiry and automatically
+     * downgrade an expired active Pro subscription to Free.
+     */
+    const profile = await syncExpiredSubscription();
 
     const profileRef = doc(db, "users", currentUser.uid);
+    const monthKey = getCurrentMonthKey();
+
+    /*
+     * Step 2: Count existing orders for this month.
+     * This also includes orders created before the new counter
+     * was introduced.
+     */
+    const existingOrdersSnapshot = await getDocs(userCollection("orders"));
+
+    const existingMonthlyOrderCount = getOrderMonthCount(
+      existingOrdersSnapshot.docs.map((item) => ({
+        id: item.id,
+        ...item.data()
+      })),
+      monthKey
+    );
+
+    const orderRef = doc(userCollection("orders"));
+
+    const itemRefs = submittedItems.map(() =>
+      doc(collection(orderRef, "items"))
+    );
+
     const orderNotificationRef = doc(
       db,
       "users",
@@ -687,22 +793,85 @@ $("orderForm").addEventListener("submit", async (event) => {
     );
 
     await runTransaction(db, async (transaction) => {
-
       const profileSnapshot = await transaction.get(profileRef);
+
+      if (!profileSnapshot.exists()) {
+        throw new Error("Seller profile not found.");
+      }
+
+      const latestProfile = profileSnapshot.data();
+
+      const currentPlan = String(
+        latestProfile.plan || "free"
+      ).toLowerCase();
+
+      const subscriptionStatus = String(
+        latestProfile.subscriptionStatus || ""
+      ).toLowerCase();
+
+      const expiryDate = getDateValue(
+        latestProfile.subscriptionEnd ||
+        latestProfile.subscriptionEndDate ||
+        latestProfile.currentPeriodEnd
+      );
+
+      /*
+       * Recheck expiry inside the order transaction too.
+       * This prevents an expired Pro subscription from
+       * being used if its status changed after the first check.
+       */
+      const proIsActive =
+        currentPlan === "pro" &&
+        subscriptionStatus === "active" &&
+        expiryDate !== null &&
+        expiryDate.getTime() > Date.now();
+
+      if (currentPlan === "pro" && !proIsActive) {
+        throw new Error(
+          "Your Pro subscription has expired or is inactive. Please try creating the order again. Your account is now being switched to Free."
+        );
+      }
+
+      const storedMonthCount =
+        latestProfile.orderUsageMonth === monthKey
+          ? Number(latestProfile.monthlyOrderCount) || 0
+          : 0;
+
+      /*
+       * Use whichever count is higher:
+       * - count from existing Firestore orders
+       * - count stored on the seller profile
+       *
+       * This supports older accounts and transaction retries.
+       */
+      const currentMonthOrderCount = Math.max(
+        existingMonthlyOrderCount,
+        storedMonthCount
+      );
+
+      if (
+        !proIsActive &&
+        currentMonthOrderCount >= FREE_MONTHLY_ORDER_LIMIT
+      ) {
+        throw new Error(
+          `Free plan limit reached. You have already created ${FREE_MONTHLY_ORDER_LIMIT} orders this month. Upgrade to Pro to create unlimited orders.`
+        );
+      }
+
       const notificationPreferences =
-        profileSnapshot.exists()
-          ? profileSnapshot.data().notificationPreferences || {}
-          : {};
+        latestProfile.notificationPreferences || {};
 
       const productSnapshots = new Map();
 
-      // All reads occur before writes inside this transaction.
+      // All product reads happen before transaction writes.
       for (const productId of quantityByProduct.keys()) {
         const productRef = userDocument("products", productId);
         const snapshot = await transaction.get(productRef);
 
         if (!snapshot.exists()) {
-          throw new Error("A selected product no longer exists. Reload products and try again.");
+          throw new Error(
+            "A selected product no longer exists. Reload products and try again."
+          );
         }
 
         const productData = snapshot.data();
@@ -722,7 +891,7 @@ $("orderForm").addEventListener("submit", async (event) => {
         });
       }
 
-      const savedItems = submittedItems.map((item, index) => {
+      const savedItems = submittedItems.map((item) => {
         const product = productSnapshots.get(item.productId).data;
 
         return {
@@ -735,12 +904,18 @@ $("orderForm").addEventListener("submit", async (event) => {
         };
       });
 
-      const subtotal = savedItems.reduce((sum, item) => sum + item.lineTotal, 0);
+      const subtotal = savedItems.reduce(
+        (sum, item) => sum + item.lineTotal,
+        0
+      );
+
       const total = subtotal + deliveryCharge;
       const now = serverTimestamp();
 
-      const orderNumber = `ORD-${Date.now().toString(36).toUpperCase()}-${orderRef.id.slice(0, 5).toUpperCase()}`;
+      const orderNumber =
+        `ORD-${Date.now().toString(36).toUpperCase()}-${orderRef.id.slice(0, 5).toUpperCase()}`;
 
+      // Create the order.
       transaction.set(orderRef, {
         orderNumber,
         customerId: customer.id,
@@ -751,7 +926,10 @@ $("orderForm").addEventListener("submit", async (event) => {
         deliveryArea,
         deliveryCharge,
         items: savedItems,
-        itemCount: savedItems.reduce((sum, item) => sum + item.quantity, 0),
+        itemCount: savedItems.reduce(
+          (sum, item) => sum + item.quantity,
+          0
+        ),
         subtotal,
         total,
         status: "Pending",
@@ -761,6 +939,7 @@ $("orderForm").addEventListener("submit", async (event) => {
         updatedAt: now
       });
 
+      // Save order item subcollection documents.
       savedItems.forEach((item, index) => {
         transaction.set(itemRefs[index], {
           ...item,
@@ -768,66 +947,85 @@ $("orderForm").addEventListener("submit", async (event) => {
         });
       });
 
+      // Decrement product stock.
       for (const [productId, requiredQuantity] of quantityByProduct.entries()) {
-        const productSnapshot = productSnapshots.get(productId);
+        const product = productSnapshots.get(productId);
 
-        transaction.update(productSnapshot.ref, {
-          stock: productSnapshot.availableStock - requiredQuantity,
+        transaction.update(product.ref, {
+          stock: product.availableStock - requiredQuantity,
           updatedAt: now
         });
       }
-      // Create one notification for this order.
-if (notificationPreferences.orderAlerts !== false) {
-  transaction.set(orderNotificationRef, {
-    type: "new_order",
-    title: "New order received",
-    message: `Order ${orderNumber} from ${customer.name || "Customer"} has been created.`,
-    relatedId: orderRef.id,
-    read: false,
-    createdAt: now
-  });
-}
 
-    // Notify when stock crosses its low-stock threshold.
-    if (notificationPreferences.lowStockAlerts !== false) {
-      for (const [productId, requiredQuantity] of quantityByProduct.entries()) {
-        const product = productSnapshots.get(productId);
-        const newStock = product.availableStock - requiredQuantity;
-        const threshold = Number(product.data.lowStockThreshold ?? 5);
+      /*
+       * Update monthly usage on the seller profile.
+       * This is done for both Free and Pro plans so that
+       * orders created during Pro are counted if the plan expires.
+       */
+      transaction.update(profileRef, {
+        orderUsageMonth: monthKey,
+        monthlyOrderCount: currentMonthOrderCount + 1,
+        updatedAt: now
+      });
 
-        if (
-          product.availableStock > threshold &&
-          newStock <= threshold
-        ) {
-          const lowStockNotificationRef = doc(
-            db,
-            "users",
-            currentUser.uid,
-            "notifications",
-            `low_stock_${productId}`
+      // New order notification.
+      if (notificationPreferences.orderAlerts !== false) {
+        transaction.set(orderNotificationRef, {
+          type: "new_order",
+          title: "New order received",
+          message: `Order ${orderNumber} from ${customer.name || "Customer"} has been created.`,
+          relatedId: orderRef.id,
+          read: false,
+          createdAt: now
+        });
+      }
+
+      // Low stock notifications.
+      if (notificationPreferences.lowStockAlerts !== false) {
+        for (const [productId, requiredQuantity] of quantityByProduct.entries()) {
+          const product = productSnapshots.get(productId);
+          const newStock = product.availableStock - requiredQuantity;
+          const threshold = Number(
+            product.data.lowStockThreshold ?? 5
           );
 
-          transaction.set(lowStockNotificationRef, {
-            type: "low_stock",
-            title: "Low stock alert",
-            message: `${product.data.name || "A product"} has only ${newStock} item(s) left.`,
-            relatedId: productId,
-            read: false,
-            createdAt: now
-          });
+          if (
+            product.availableStock > threshold &&
+            newStock <= threshold
+          ) {
+            const lowStockNotificationRef = doc(
+              db,
+              "users",
+              currentUser.uid,
+              "notifications",
+              `low_stock_${productId}`
+            );
+
+            transaction.set(lowStockNotificationRef, {
+              type: "low_stock",
+              title: "Low stock alert",
+              message: `${product.data.name || "A product"} has only ${newStock} item(s) left.`,
+              relatedId: productId,
+              read: false,
+              createdAt: now
+            });
+          }
         }
       }
-    }
-
     });
 
     closeOrderModal();
     showNotice("Order created and stock updated successfully.", "success");
 
-    await Promise.all([loadProducts()]);
+    await loadProducts();
+
   } catch (error) {
     console.error("Order creation failed:", error);
-    showFormFeedback(error.message || "Could not create the order. Please try again.");
+
+    showFormFeedback(
+      error.message || "Could not create the order. Please try again."
+    );
+
   } finally {
     button.disabled = false;
   }

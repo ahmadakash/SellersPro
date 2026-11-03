@@ -42,15 +42,26 @@
           <i class="bi bi-gear"></i>
           <span>Settings</span>
         </a>
+        <a class="nav-link" href="../subscription/subscription.html">
+          <i class="bi bi-stars"></i>
+          <span>Subscription</span>
+        </a>
       </nav>
 
       <div class="sidebar-bottom">
-        <div class="plan-card">
-          <div class="plan-icon"><i class="bi bi-stars"></i></div>
-          <strong>Free plan</strong>
-          <p>Get started with your business.</p>
-          <small>Order limit: 10 orders</small>
-        </div>
+        <a href="../subscription/subscription.html"
+          class="plan-card plan-card-link"
+          id="sellerPlanCard">
+
+          <div class="plan-card-top">
+            <div class="plan-icon"><i class="bi bi-stars"></i></div>
+            <span class="plan-card-action" id="planCardAction">Upgrade</span>
+          </div>
+
+          <strong id="sidebarPlanName">Free plan</strong>
+          <p id="sidebarPlanDescription">Get started with your business.</p>
+          <small id="sidebarPlanLimit">Order limit: 10 orders / month</small>
+        </a>
         <button class="nav-link logout-btn" id="logoutBtn" type="button">
           <i class="bi bi-box-arrow-left"></i><span>Log out</span>
         </button>
@@ -333,5 +344,6 @@
   <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
   <script type="module" src="../../assets/js/auth/dashboard.js"></script>
+  <script type="module" src="../../assets/js/services/plan-status.js"></script>
 </body>
 </html>

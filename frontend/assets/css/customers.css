@@ -401,3 +401,35 @@
     padding: 20px;
   }
 }
+
+/* Plan cards */
+.plan-card-link {
+  display: block;
+  color: inherit;
+  text-decoration: none;
+  transition: .2s ease;
+}
+
+.plan-card-link:hover {
+  color: inherit;
+  border-color: #cbd8f7;
+  background: #edf3ff;
+  transform: translateY(-2px);
+}
+
+.plan-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.plan-card-action {
+  color: var(--blue);
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.plan-card-link:focus-visible {
+  outline: 3px solid #9bb6ff;
+  outline-offset: 3px;
+}

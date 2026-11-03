@@ -9,9 +9,11 @@ import {
   collection,
   doc,
   getDoc,
-  getDocs
+  getDocs,
+  updateDoc,
+  serverTimestamp,
+  writeBatch
 } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
-
 const $ = (id) => document.getElementById(id);
 
 let allPayments = [];
@@ -132,7 +134,7 @@ function getSellerEmail(payment) {
 }
 
 function showFeedback(message) {
-  const feedback = $("pageFeedback");
+  const feedback = $("paymentsNotice");
   if (!feedback) return;
 
   feedback.textContent = message;
@@ -140,7 +142,7 @@ function showFeedback(message) {
 }
 
 function hideFeedback() {
-  const feedback = $("pageFeedback");
+  const feedback = $("paymentsNotice");
   if (feedback) feedback.hidden = true;
 }
 
@@ -168,10 +170,10 @@ async function verifyAdmin(user) {
 ========================================= */
 
 async function loadPayments() {
-  const loading = $("paymentsLoading");
-  const tableWrap = $("paymentsTableWrap");
-  const emptyState = $("emptyPayments");
-  const refreshBtn = $("refreshBtn");
+  const loading = $("paymentLoading");
+  const tableWrap = $("paymentTableWrap");
+  const emptyState = $("paymentEmpty");
+  const refreshBtn = $("refreshPaymentsBtn");
 
   if (loading) loading.hidden = false;
   if (tableWrap) tableWrap.hidden = true;
@@ -341,23 +343,23 @@ function renderPayments() {
   if (!filteredPayments.length) {
     tbody.innerHTML = "";
 
-    if ($("paymentsTableWrap")) {
-      $("paymentsTableWrap").hidden = true;
+    if ($("paymentTableWrap")) {
+      $("paymentTableWrap").hidden = true;
     }
 
-    if ($("emptyPayments")) {
-      $("emptyPayments").hidden = false;
+    if ($("paymentEmpty")) {
+      $("paymentEmpty").hidden = false;
     }
 
     return;
   }
 
-  if ($("emptyPayments")) {
-    $("emptyPayments").hidden = true;
+  if ($("paymentEmpty")) {
+    $("paymentEmpty").hidden = true;
   }
 
-  if ($("paymentsTableWrap")) {
-    $("paymentsTableWrap").hidden = false;
+  if ($("paymentTableWrap")) {
+    $("paymentTableWrap").hidden = false;
   }
 
   tbody.innerHTML = filteredPayments.map((payment) => {
@@ -436,27 +438,25 @@ function openPaymentDetails(paymentId) {
 
   if (!payment || !paymentModal) return;
 
-  const modalBody = modalElement.querySelector(".modal-body");
-
+  const modalBody = $("paymentDetailsBody");
   if (!modalBody) return;
+
+  const status = getStatus(payment);
+  const isPending = status === "pending";
 
   const details = [
     ["Payment ID", payment.id],
     ["Seller Name", getSellerName(payment)],
     ["Seller Email", getSellerEmail(payment)],
     ["Seller UID", payment.sellerUid || "—"],
-    ["Plan", payment.plan || payment.planName || "—"],
-    ["Billing Cycle", payment.billingCycle || payment.billing || "—"],
+    ["Plan", payment.plan || "—"],
+    ["Billing Cycle", payment.billingCycle || "—"],
     ["Amount", getAmount(payment)],
     ["Payment Method", getMethod(payment)],
     ["Sender Number", getSenderNumber(payment)],
     ["Transaction ID", getTransactionId(payment)],
-    ["Status", getStatus(payment)],
-    ["Submitted At", formatDate(
-      payment.submittedAt ||
-      payment.createdAt ||
-      payment.requestedAt
-    )],
+    ["Status", status],
+    ["Submitted At", formatDate(payment.submittedAt)],
     ["Verified At", formatDate(payment.verifiedAt)],
     ["Verified By", payment.verifiedBy || "—"],
     ["Subscription Start", formatDate(payment.subscriptionStart)],
@@ -479,10 +479,212 @@ function openPaymentDetails(paymentId) {
         ${escapeHTML(payment.rejectionReason)}
       </div>
     ` : ""}
+
+    ${isPending ? `
+      <div class="alert alert-info mt-3">
+        <i class="bi bi-info-circle"></i>
+        Verify the transaction in your bKash/Nagad account before approving.
+      </div>
+    ` : `
+      <div class="alert alert-secondary mt-3">
+        This payment has already been reviewed.
+      </div>
+    `}
   `;
+
+  $("approvePaymentBtn").hidden = !isPending;
+  $("rejectPaymentBtn").hidden = !isPending;
+
+  $("approvePaymentBtn").dataset.paymentId = payment.id;
+  $("rejectPaymentBtn").dataset.paymentId = payment.id;
 
   paymentModal.show();
 }
+
+/* =========================================
+   ADMIN APPROVE / REJECT PAYMENT
+========================================= */
+
+async function reviewPayment(paymentId, decision, reason = "") {
+  const payment = allPayments.find(
+    (item) => item.id === paymentId
+  );
+
+  if (!payment) {
+    alert("Payment record not found.");
+    return;
+  }
+
+  if (getStatus(payment) !== "pending") {
+    alert("This payment has already been reviewed.");
+    return;
+  }
+
+  const approveBtn = $("approvePaymentBtn");
+  const rejectBtn = $("rejectPaymentBtn");
+
+  if (approveBtn) approveBtn.disabled = true;
+  if (rejectBtn) rejectBtn.disabled = true;
+
+  try {
+    const user = auth.currentUser;
+
+    if (!user) {
+      throw new Error("Admin session expired. Please log in again.");
+    }
+
+    // Verify that this is still an active Admin.
+    const isAdmin = await verifyAdmin(user);
+
+    if (!isAdmin) {
+      throw new Error("Admin permission is not active.");
+    }
+
+    const paymentRef = doc(db, "payments", paymentId);
+
+    const batch = writeBatch(db);
+
+    const paymentUpdate = {
+      status: decision,
+      verifiedAt: serverTimestamp(),
+      verifiedBy: user.uid
+    };
+
+    if (decision === "approved") {
+      if (!payment.sellerUid) {
+        throw new Error("Seller UID is missing from this payment.");
+      }
+
+      // Check seller profile exists.
+      const sellerRef = doc(db, "users", payment.sellerUid);
+      const sellerSnap = await getDoc(sellerRef);
+
+      if (!sellerSnap.exists()) {
+        throw new Error("Seller account was not found.");
+      }
+
+      const billingCycle = String(
+        payment.billingCycle || ""
+      ).toLowerCase();
+
+      if (!["monthly", "yearly"].includes(billingCycle)) {
+        throw new Error("Invalid subscription billing cycle.");
+      }
+
+      // Calculate subscription expiry.
+      const startDate = new Date();
+      const endDate = new Date(startDate);
+
+      if (billingCycle === "monthly") {
+        endDate.setMonth(endDate.getMonth() + 1);
+      } else {
+        endDate.setFullYear(endDate.getFullYear() + 1);
+      }
+
+      // Payment document update.
+      paymentUpdate.subscriptionStart = serverTimestamp();
+      paymentUpdate.subscriptionEnd = endDate;
+
+      // Seller profile update.
+      batch.update(sellerRef, {
+        plan: "pro",
+        subscriptionStatus: "active",
+        subscriptionStart: serverTimestamp(),
+        subscriptionEnd: endDate,
+        billingCycle,
+        updatedAt: serverTimestamp()
+      });
+    }
+
+    if (decision === "rejected") {
+      paymentUpdate.rejectionReason = reason;
+    }
+
+    batch.update(paymentRef, paymentUpdate);
+
+    // Both documents update together.
+    await batch.commit();
+
+    if (paymentModal) {
+      paymentModal.hide();
+    }
+
+    showFeedback(
+      decision === "approved"
+        ? "Payment approved. Seller Pro subscription activated successfully."
+        : "Payment rejected successfully."
+    );
+
+    await loadPayments();
+
+  } catch (error) {
+    console.error("Payment review error:", error);
+
+    showFeedback(
+      error.code === "permission-denied"
+        ? "Permission denied. Please check Firestore Rules and Admin access."
+        : error.message || "Could not review payment."
+    );
+
+  } finally {
+    if (approveBtn) approveBtn.disabled = false;
+    if (rejectBtn) rejectBtn.disabled = false;
+  }
+}
+
+/* =========================================
+   APPROVE BUTTON
+========================================= */
+
+$("approvePaymentBtn")?.addEventListener("click", () => {
+  const paymentId = $("approvePaymentBtn").dataset.paymentId;
+
+  if (!paymentId) return;
+
+  const confirmed = confirm(
+    "Have you verified this transaction in your bKash/Nagad account? Approve this payment?"
+  );
+
+  if (!confirmed) return;
+
+  reviewPayment(paymentId, "approved");
+});
+
+/* =========================================
+   REJECT BUTTON
+========================================= */
+
+$("rejectPaymentBtn")?.addEventListener("click", () => {
+  const paymentId = $("rejectPaymentBtn").dataset.paymentId;
+
+  if (!paymentId) return;
+
+  const reason = prompt(
+    "Enter the reason for rejecting this payment:"
+  );
+
+  if (reason === null) return;
+
+  const cleanReason = reason.trim();
+
+  if (!cleanReason) {
+    alert("Please enter a rejection reason.");
+    return;
+  }
+
+  if (cleanReason.length > 500) {
+    alert("Rejection reason must be 500 characters or less.");
+    return;
+  }
+
+  const confirmed = confirm(
+    "Are you sure you want to reject this payment?"
+  );
+
+  if (!confirmed) return;
+
+  reviewPayment(paymentId, "rejected", cleanReason);
+});
 
 /* =========================================
    FILTERS AND SEARCH
@@ -503,7 +705,7 @@ document.querySelectorAll("[data-filter]").forEach((button) => {
 
 $("paymentSearch")?.addEventListener("input", renderPayments);
 
-$("refreshBtn")?.addEventListener("click", loadPayments);
+$("refreshPaymentsBtn")?.addEventListener("click", loadPayments);
 
 /* =========================================
    LOGOUT
