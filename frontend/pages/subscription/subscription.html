@@ -57,7 +57,14 @@
         <h1>Subscription</h1>
       </div>
 
-      <button class="user-area profile-trigger" id="profileTrigger" type="button">
+      <button
+        class="user-area profile-trigger"
+        id="profileTrigger"
+        type="button"
+        aria-haspopup="dialog"
+        aria-controls="profileModal"
+        aria-label="Open seller profile"
+      >
         <span class="user-avatar" id="userAvatar">S</span>
         <span class="user-info">
           <strong id="userName">Loading...</strong>
@@ -248,6 +255,57 @@
       </div>
     </section>
   </main>
+</div>
+
+<!-- Profile modal (same as the Dashboard page) -->
+<div class="profile-modal" id="profileModal" hidden>
+  <div class="profile-backdrop" data-close-profile></div>
+
+  <section class="profile-dialog" role="dialog" aria-modal="true" aria-labelledby="profileModalTitle">
+    <div class="profile-modal-header">
+      <div>
+        <p class="eyebrow">ACCOUNT SETTINGS</p>
+        <h2 id="profileModalTitle">Seller profile</h2>
+        <p class="muted">Manage your personal and business details.</p>
+      </div>
+
+      <button type="button" class="profile-close" id="closeProfileBtn" aria-label="Close profile">
+        <i class="bi bi-x-lg"></i>
+      </button>
+    </div>
+
+    <form id="profileForm">
+      <div class="profile-form-grid">
+        <div class="profile-field">
+          <label for="profileName">Full name</label>
+          <input id="profileName" name="name" type="text" maxlength="100" required>
+        </div>
+
+        <div class="profile-field">
+          <label for="profileBusinessName">Business name</label>
+          <input id="profileBusinessName" name="businessName" type="text" maxlength="120" required>
+        </div>
+
+        <div class="profile-field">
+          <label for="profileEmail">Email address</label>
+          <input id="profileEmail" name="email" type="email" readonly>
+          <small>Email changes are managed separately.</small>
+        </div>
+
+        <div class="profile-field">
+          <label for="profilePhone">Phone number</label>
+          <input id="profilePhone" name="phone" type="tel" maxlength="25">
+        </div>
+      </div>
+
+      <p class="profile-feedback" id="profileFeedback" role="status" hidden></p>
+
+      <div class="profile-actions">
+        <button type="button" class="profile-cancel-btn" id="cancelProfileBtn">Cancel</button>
+        <button type="submit" class="primary-btn" id="saveProfileBtn">Save changes</button>
+      </div>
+    </form>
+  </section>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>

@@ -13,6 +13,7 @@ import {
   query,
   where,
   writeBatch,
+  updateDoc,
   serverTimestamp
 } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
 
@@ -68,7 +69,7 @@ function getCurrentPlan() {
 }
 
 function getSubscriptionStatus() {
-  return String(sellerProfile.subscriptionStatus || "free").toLowerCase();
+  return String(sellerProfile.subscriptionStatus || "").toLowerCase();
 }
 
 function getSubscriptionEnd() {
@@ -505,16 +506,26 @@ async function submitPaymentRequest(event) {
   }
 }
 
-async function loadSeller(user) {
-  currentUser = user;
+/* Shown when the profile could not be read, so the card never stays on "Loading plan..." */
+function showPlanLoadError() {
+  $("currentPlanName").textContent = "Plan unavailable";
+  $("currentPlanDescription").textContent =
+    "We could not load your subscription details. Please refresh the page.";
+  $("currentPlanStatus").textContent = "Unavailable";
+  $("currentPlanStatus").className = "status-pill";
+  $("subscriptionExpiry").textContent = "—";
 
-  const profileSnapshot = await getDoc(doc(db, "users", user.uid));
-  sellerProfile = profileSnapshot.exists() ? profileSnapshot.data() : {};
+  // Do not offer an upgrade while we do not know the current plan
+  $("upgradeBtn").disabled = true;
+}
 
+/* Top-right seller name, business and avatar */
+function renderUserHeader() {
   const name =
     sellerProfile.fullName ||
     sellerProfile.name ||
-    user.displayName ||
+    currentUser?.displayName ||
+    currentUser?.email?.split("@")[0] ||
     "Seller";
 
   $("userName").textContent = name;
@@ -522,6 +533,103 @@ async function loadSeller(user) {
     sellerProfile.businessName || "Your business";
   $("userAvatar").textContent =
     name.trim().charAt(0).toUpperCase() || "S";
+}
+
+/* =====================================================
+   Profile modal (same behaviour as the Dashboard page)
+===================================================== */
+
+const profileModal = $("profileModal");
+
+function setProfileFeedback(message, type = "error") {
+  const box = $("profileFeedback");
+  box.textContent = message;
+  box.className = `profile-feedback ${type}`;
+  box.hidden = !message;
+}
+
+function openProfile() {
+  if (!currentUser) return;
+
+  setProfileFeedback("");
+
+  $("profileName").value =
+    sellerProfile.fullName || sellerProfile.name || currentUser.displayName || "";
+  $("profileBusinessName").value = sellerProfile.businessName || "";
+  $("profileEmail").value = currentUser.email || sellerProfile.email || "";
+  $("profilePhone").value = sellerProfile.phone || currentUser.phoneNumber || "";
+
+  profileModal.hidden = false;
+  document.body.style.overflow = "hidden";
+  $("profileName").focus();
+}
+
+function closeProfile() {
+  profileModal.hidden = true;
+  document.body.style.overflow = "";
+  $("profileTrigger").focus();
+}
+
+async function saveProfile(event) {
+  event.preventDefault();
+
+  if (!currentUser) return;
+
+  const name = $("profileName").value.trim();
+  const businessName = $("profileBusinessName").value.trim();
+  const phone = $("profilePhone").value.trim();
+
+  if (!name || !businessName) {
+    setProfileFeedback("Full name and business name are required.");
+    return;
+  }
+
+  if (phone && !/^[0-9+\-\s()]{6,25}$/.test(phone)) {
+    setProfileFeedback("Please enter a valid phone number.");
+    return;
+  }
+
+  const saveButton = $("saveProfileBtn");
+  saveButton.disabled = true;
+  saveButton.textContent = "Saving...";
+  setProfileFeedback("");
+
+  try {
+    // name + fullName are both written so every page shows the same name
+    await updateDoc(doc(db, "users", currentUser.uid), {
+      name,
+      fullName: name,
+      businessName,
+      phone,
+      updatedAt: serverTimestamp()
+    });
+
+    sellerProfile = { ...sellerProfile, name, fullName: name, businessName, phone };
+    renderUserHeader();
+
+    setProfileFeedback("Profile updated successfully.", "success");
+
+    window.setTimeout(() => {
+      if (!profileModal.hidden) closeProfile();
+    }, 800);
+  } catch (error) {
+    console.error("Saving profile failed:", error);
+    setProfileFeedback(
+      "Could not save your profile. Check your connection and Firestore rules."
+    );
+  } finally {
+    saveButton.disabled = false;
+    saveButton.textContent = "Save changes";
+  }
+}
+
+async function loadSeller(user) {
+  currentUser = user;
+
+  const profileSnapshot = await getDoc(doc(db, "users", user.uid));
+  sellerProfile = profileSnapshot.exists() ? profileSnapshot.data() : {};
+
+  renderUserHeader();
 
   await loadBillingSettings();
   updateCurrentPlanUI();
@@ -544,22 +652,51 @@ $("paymentForm").addEventListener("submit", submitPaymentRequest);
 $("refreshHistory").addEventListener("click", loadPaymentHistory);
 
 $("logoutBtn").addEventListener("click", async () => {
-  await signOut(auth);
-  window.location.href = "../auth/login.html";
+  try {
+    await signOut(auth);
+    window.location.href = "../auth/login.html";
+  } catch (error) {
+    console.error("Logout failed:", error);
+    showNotice("Could not log out. Please try again.", "error");
+  }
 });
+
+/* Mobile sidebar.
+   dashboard.css opens the sidebar with the "open" class and shows the
+   overlay with the "show" class. (The old code used "active", which that
+   stylesheet does not know, so the menu button did nothing.) */
+
+function closeSidebar() {
+  $("sidebar").classList.remove("open");
+  $("sidebarOverlay").classList.remove("show");
+}
 
 $("menuToggle").addEventListener("click", () => {
-  $("sidebar").classList.toggle("active");
-  $("sidebarOverlay").classList.toggle("active");
+  $("sidebar").classList.toggle("open");
+  $("sidebarOverlay").classList.toggle("show");
 });
 
-$("sidebarOverlay").addEventListener("click", () => {
-  $("sidebar").classList.remove("active");
-  $("sidebarOverlay").classList.remove("active");
+$("sidebarOverlay").addEventListener("click", closeSidebar);
+
+document.querySelectorAll("#sidebar a").forEach((link) => {
+  link.addEventListener("click", closeSidebar);
 });
 
-$("profileTrigger").addEventListener("click", () => {
-  window.location.href = "../settings/settings.html";
+/* Profile modal */
+
+$("profileTrigger").addEventListener("click", openProfile);
+$("closeProfileBtn").addEventListener("click", closeProfile);
+$("cancelProfileBtn").addEventListener("click", closeProfile);
+profileModal
+  .querySelector("[data-close-profile]")
+  .addEventListener("click", closeProfile);
+$("profileForm").addEventListener("submit", saveProfile);
+
+document.addEventListener("keydown", (event) => {
+  if (event.key !== "Escape") return;
+
+  if (!profileModal.hidden) closeProfile();
+  closeSidebar();
 });
 
 /* Authentication */
@@ -570,10 +707,15 @@ onAuthStateChanged(auth, async (user) => {
     return;
   }
 
+  // Show what we already know (from sign-in) before Firestore answers
+  currentUser = user;
+  renderUserHeader();
+
   try {
     await loadSeller(user);
   } catch (error) {
     console.error("Subscription page initialization error:", error);
+    showPlanLoadError();
     showNotice(
       "Could not load your subscription information. Please refresh the page.",
       "error"
