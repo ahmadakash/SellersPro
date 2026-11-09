@@ -153,6 +153,10 @@ function getOrderMonthCount(orderList, monthKey) {
  * Check Pro expiry immediately before creating an order.
  * If expired, permanently update the seller profile to Free.
  */
+/*
+ * Check Pro subscription before creating an order.
+ * If Pro is inactive or expired, downgrade the seller to Free.
+ */
 async function syncExpiredSubscription() {
   const profileRef = doc(db, "users", currentUser.uid);
 
@@ -164,7 +168,9 @@ async function syncExpiredSubscription() {
     }
 
     const profile = snapshot.data();
+
     const plan = String(profile.plan || "free").toLowerCase();
+
     const subscriptionStatus = String(
       profile.subscriptionStatus || ""
     ).toLowerCase();
@@ -175,22 +181,34 @@ async function syncExpiredSubscription() {
       profile.currentPeriodEnd
     );
 
-    const isExpiredPro =
+    const isActiveAndValidPro =
       plan === "pro" &&
       subscriptionStatus === "active" &&
-      (!expiryDate || expiryDate.getTime() <= Date.now());
+      expiryDate &&
+      expiryDate.getTime() > Date.now();
 
-    if (isExpiredPro) {
+    // Keep a valid, active Pro subscription unchanged.
+    if (isActiveAndValidPro) {
+      return profile;
+    }
+
+    // Downgrade invalid, inactive, or expired Pro subscriptions.
+    if (plan === "pro") {
+      const newStatus =
+        subscriptionStatus === "active"
+          ? "expired"
+          : (subscriptionStatus || "inactive");
+
       transaction.update(profileRef, {
         plan: "free",
-        subscriptionStatus: "expired",
+        subscriptionStatus: newStatus,
         updatedAt: serverTimestamp()
       });
 
       return {
         ...profile,
         plan: "free",
-        subscriptionStatus: "expired"
+        subscriptionStatus: newStatus
       };
     }
 

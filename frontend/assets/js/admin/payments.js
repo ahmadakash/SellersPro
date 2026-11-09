@@ -515,6 +515,11 @@ async function reviewPayment(paymentId, decision, reason = "") {
     return;
   }
 
+  if (!["approved", "rejected"].includes(decision)) {
+    alert("Invalid payment decision.");
+    return;
+  }
+
   if (getStatus(payment) !== "pending") {
     alert("This payment has already been reviewed.");
     return;
@@ -533,29 +538,48 @@ async function reviewPayment(paymentId, decision, reason = "") {
       throw new Error("Admin session expired. Please log in again.");
     }
 
-    // Verify that this is still an active Admin.
     const isAdmin = await verifyAdmin(user);
 
     if (!isAdmin) {
       throw new Error("Admin permission is not active.");
     }
 
+    if (!payment.sellerUid) {
+      throw new Error("Seller UID is missing from this payment.");
+    }
+
+    if (decision === "rejected" && !reason.trim()) {
+      throw new Error("Please provide a rejection reason.");
+    }
+
     const paymentRef = doc(db, "payments", paymentId);
+
+    const subscriptionRequestRef = doc(
+      db,
+      "users",
+      payment.sellerUid,
+      "subscriptionRequests",
+      paymentId
+    );
+
+    // Confirm the mirrored subscription request exists.
+    const requestSnap = await getDoc(subscriptionRequestRef);
+
+    if (!requestSnap.exists()) {
+      throw new Error(
+        "Subscription request mirror was not found. No changes were made."
+      );
+    }
 
     const batch = writeBatch(db);
 
-    const paymentUpdate = {
+    const reviewData = {
       status: decision,
       verifiedAt: serverTimestamp(),
       verifiedBy: user.uid
     };
 
     if (decision === "approved") {
-      if (!payment.sellerUid) {
-        throw new Error("Seller UID is missing from this payment.");
-      }
-
-      // Check seller profile exists.
       const sellerRef = doc(db, "users", payment.sellerUid);
       const sellerSnap = await getDoc(sellerRef);
 
@@ -571,7 +595,6 @@ async function reviewPayment(paymentId, decision, reason = "") {
         throw new Error("Invalid subscription billing cycle.");
       }
 
-      // Calculate subscription expiry.
       const startDate = new Date();
       const endDate = new Date(startDate);
 
@@ -581,11 +604,10 @@ async function reviewPayment(paymentId, decision, reason = "") {
         endDate.setFullYear(endDate.getFullYear() + 1);
       }
 
-      // Payment document update.
-      paymentUpdate.subscriptionStart = serverTimestamp();
-      paymentUpdate.subscriptionEnd = endDate;
+      reviewData.subscriptionStart = serverTimestamp();
+      reviewData.subscriptionEnd = endDate;
 
-      // Seller profile update.
+      // Activate seller's Pro subscription.
       batch.update(sellerRef, {
         plan: "pro",
         subscriptionStatus: "active",
@@ -597,12 +619,16 @@ async function reviewPayment(paymentId, decision, reason = "") {
     }
 
     if (decision === "rejected") {
-      paymentUpdate.rejectionReason = reason;
+      reviewData.rejectionReason = reason.trim();
     }
 
-    batch.update(paymentRef, paymentUpdate);
+    // Update the main payment document.
+    batch.update(paymentRef, reviewData);
 
-    // Both documents update together.
+    // Update the mirrored subscription request.
+    batch.update(subscriptionRequestRef, reviewData);
+
+    // All updates succeed together or fail together.
     await batch.commit();
 
     if (paymentModal) {
@@ -622,7 +648,7 @@ async function reviewPayment(paymentId, decision, reason = "") {
 
     showFeedback(
       error.code === "permission-denied"
-        ? "Permission denied. Please check Firestore Rules and Admin access."
+        ? "Permission denied. Check Firestore Rules for Admin payment and subscription request updates."
         : error.message || "Could not review payment."
     );
 

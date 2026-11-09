@@ -174,14 +174,68 @@
           <div><small>Payable amount</small><strong id="selectedAmount">৳100</strong></div>
         </div>
 
-        <div class="payment-instructions">
-          <div class="payment-method-icon"><i class="bi bi-phone"></i></div>
-          <div>
-            <strong>Manual bKash / Nagad payment</strong>
-            <p>Use the official SellersPro payment number provided by the administrator. Enter the sender number and transaction ID accurately.</p>
-            <small>Payment will remain pending until an administrator verifies it.</small>
+          <!-- Payment instructions and receiving numbers -->
+          <div class="payment-instructions">
+            <div class="payment-method-icon">
+              <i class="bi bi-phone"></i>
+            </div>
+
+            <div class="payment-instructions-content">
+              <strong>Manual bKash / Nagad payment</strong>
+              <p>
+                Send the exact payable amount to one of the official SellersPro
+                payment numbers below. Then select the same payment method and
+                submit your sender number and Transaction ID.
+              </p>
+
+              <div class="receiver-number-list">
+                <div class="receiver-number-card">
+                  <div class="receiver-brand">
+                    <span class="receiver-dot bkash-dot"></span>
+                    <strong>bKash</strong>
+                    <span class="receiver-type">Personal</span>
+                  </div>
+                  <div class="receiver-number-row">
+                    <strong>01XXXXXXXXX</strong>
+                    <span>Receiving number</span>
+                  </div>
+                </div>
+
+                <div class="receiver-number-card">
+                  <div class="receiver-brand">
+                    <span class="receiver-dot nagad-dot"></span>
+                    <strong>Nagad</strong>
+                    <span class="receiver-type">Personal</span>
+                  </div>
+                  <div class="receiver-number-row">
+                    <strong>01XXXXXXXXX</strong>
+                    <span>Receiving number</span>
+                  </div>
+                </div>
+              </div>
+
+              <small>
+                Important: Make sure you send money to the correct number.
+                Keep your Transaction ID until your payment is verified.
+              </small>
+            </div>
           </div>
-        </div>
+
+          <!-- Activation time notice -->
+          <div class="activation-notice">
+            <div class="activation-notice-icon">
+              <i class="bi bi-clock-history"></i>
+            </div>
+            <div>
+              <strong>Account activation within 24 hours</strong>
+              <p>
+                After submitting your payment request, your Pro account will be
+                activated within 24 hours after payment verification by our admin team.
+                If your account is not activated within 24 hours, please contact
+                SellersPro Support.
+              </p>
+            </div>
+          </div>
 
         <form id="paymentForm">
           <div class="payment-form-grid">
@@ -253,7 +307,61 @@
         <i class="bi bi-info-circle"></i>
         Your Pro subscription starts only after payment verification and approval by SellersPro Admin.
       </div>
+
+    <!-- Developer and support information -->
+    <section class="developer-support-card">
+      <div class="developer-support-heading">
+        <div class="developer-support-icon">
+          <i class="bi bi-headset"></i>
+        </div>
+        <div>
+          <h3>Need help with your payment?</h3>
+          <p>Our support team is here to help you.</p>
+        </div>
+      </div>
+
+      <div class="developer-support-details">
+        <div class="support-detail">
+          <i class="bi bi-person-badge"></i>
+          <div>
+            <small>Developed by</small>
+            <strong>Dummy Developer Name</strong>
+          </div>
+        </div>
+
+        <div class="support-detail">
+          <i class="bi bi-envelope"></i>
+          <div>
+            <small>Support email</small>
+            <strong>support@example.com</strong>
+          </div>
+        </div>
+
+        <div class="support-detail">
+          <i class="bi bi-telephone"></i>
+          <div>
+            <small>Contact number</small>
+            <strong>01XXXXXXXXX</strong>
+          </div>
+        </div>
+
+        <div class="support-detail">
+          <i class="bi bi-globe"></i>
+          <div>
+            <small>Website</small>
+            <strong>www.example.com</strong>
+          </div>
+        </div>
+      </div>
+
+      <p class="developer-support-note">
+        For payment verification delays or subscription-related issues,
+        contact our support team with your Transaction ID.
+      </p>
     </section>
+
+    </section>
+
   </main>
 </div>
 

@@ -394,3 +394,334 @@
   font-size: 11px;
   font-weight: 700;
 }
+
+/* =========================================
+   PAYMENT RECEIVING NUMBERS
+========================================= */
+
+.payment-instructions-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.receiver-number-list {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin: 13px 0;
+}
+
+.receiver-number-card {
+  padding: 12px;
+  border: 1px solid #e8edf5;
+  border-radius: 10px;
+  background: #fff;
+}
+
+.receiver-brand {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin-bottom: 12px;
+}
+
+.receiver-brand strong {
+  font-size: 12px;
+}
+
+.receiver-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+}
+
+.bkash-dot {
+  background: #e2136e;
+}
+
+.nagad-dot {
+  background: #f58220;
+}
+
+.receiver-type {
+  margin-left: auto;
+  padding: 4px 7px;
+  border-radius: 20px;
+  background: #f1f4f9;
+  color: #77849a;
+  font-size: 9px;
+  font-weight: 700;
+}
+
+.receiver-number-row {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.receiver-number-row strong {
+  color: var(--navy);
+  font-size: 15px;
+  letter-spacing: .4px;
+}
+
+.receiver-number-row span {
+  color: #929db0;
+  font-size: 9px;
+}
+
+/* =========================================
+   24 HOURS ACTIVATION NOTICE
+========================================= */
+
+.activation-notice {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin: 0 0 20px;
+  padding: 15px;
+  border: 1px solid #dce9ff;
+  border-radius: 11px;
+  background: #f4f8ff;
+}
+
+.activation-notice-icon {
+  flex-shrink: 0;
+  width: 35px;
+  height: 35px;
+  display: grid;
+  place-items: center;
+  border-radius: 10px;
+  background: #e4edff;
+  color: var(--blue);
+  font-size: 17px;
+}
+
+.activation-notice strong {
+  display: block;
+  margin-bottom: 5px;
+  color: var(--navy);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.activation-notice p {
+  margin: 0;
+  color: #687790;
+  font-size: 11px;
+  line-height: 1.65;
+}
+
+/* =========================================
+   DEVELOPER & SUPPORT CARD
+========================================= */
+
+.developer-support-card {
+  padding: 24px;
+  margin-top: 24px;
+  border: 1px solid #e7ecf5;
+  border-radius: 16px;
+  background: #fff;
+  box-shadow: 0 5px 20px rgba(30, 52, 88, .035);
+}
+
+.developer-support-heading {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  margin-bottom: 22px;
+}
+
+.developer-support-icon {
+  width: 44px;
+  height: 44px;
+  flex: 0 0 44px;
+
+  display: grid;
+  place-items: center;
+
+  border-radius: 11px;
+  background: #edf3ff;
+  color: var(--blue);
+  font-size: 19px;
+}
+
+.developer-support-heading > div:last-child {
+  min-width: 0;
+}
+
+.developer-support-heading h3 {
+  margin: 0 0 5px;
+  color: var(--navy);
+  font-size: 15px;
+  font-weight: 800;
+  line-height: 1.4;
+}
+
+.developer-support-heading p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+/* Support information grid */
+
+.developer-support-details {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.support-detail {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  min-width: 0;
+  min-height: 68px;
+  padding: 13px 15px;
+
+  box-sizing: border-box;
+  border: 1px solid #edf0f5;
+  border-radius: 10px;
+  background: #fbfcfe;
+}
+
+.support-detail > i {
+  flex: 0 0 20px;
+  width: 20px;
+  text-align: center;
+  color: var(--blue);
+  font-size: 17px;
+}
+
+.support-detail > div {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  min-width: 0;
+  flex: 1;
+}
+
+.support-detail small {
+  color: #929db0;
+  font-size: 10px;
+  line-height: 1.3;
+}
+
+.support-detail strong {
+  display: block;
+  max-width: 100%;
+
+  color: var(--navy);
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.5;
+
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.developer-support-note {
+  margin: 18px 0 0;
+  padding-top: 15px;
+
+  border-top: 1px solid #edf0f5;
+
+  color: #8490a4;
+  font-size: 11px;
+  line-height: 1.7;
+}
+
+/* =========================================
+   TABLET
+========================================= */
+
+@media (max-width: 900px) {
+
+  .developer-support-card {
+    padding: 23px;
+    margin-bottom: 28px;
+  }
+
+  .developer-support-details {
+    gap: 10px;
+  }
+
+}
+
+/* =========================================
+   MOBILE
+========================================= */
+
+@media (max-width: 700px) {
+
+  .developer-support-card {
+    padding: 18px;
+    margin-bottom: 22px;
+    border-radius: 12px;
+  }
+
+  .developer-support-heading {
+    gap: 11px;
+    margin-bottom: 17px;
+  }
+
+  .developer-support-icon {
+    width: 40px;
+    height: 40px;
+    flex-basis: 40px;
+    font-size: 17px;
+  }
+
+  .developer-support-heading h3 {
+    font-size: 14px;
+  }
+
+  .developer-support-heading p {
+    font-size: 11px;
+  }
+
+  .developer-support-details {
+    grid-template-columns: 1fr;
+    gap: 9px;
+  }
+
+  .support-detail {
+    min-height: 64px;
+    padding: 12px;
+  }
+
+  .developer-support-note {
+    margin-top: 15px;
+    padding-top: 13px;
+    font-size: 10px;
+  }
+
+}
+
+/* =========================================
+   SMALL MOBILE
+========================================= */
+
+@media (max-width: 480px) {
+
+  .developer-support-card {
+    padding: 14px;
+  }
+
+  .developer-support-heading {
+    align-items: flex-start;
+  }
+
+  .support-detail {
+    gap: 9px;
+    padding: 11px;
+  }
+
+  .support-detail strong {
+    font-size: 11px;
+  }
+
+}
