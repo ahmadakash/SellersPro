@@ -1,0 +1,165 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Manage Sellers | sellersPro Admin</title>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+  <link rel="stylesheet" href="../../assets/css/dashboard.css">
+  <link rel="stylesheet" href="../../assets/css/admin.css">
+</head>
+<body class="admin-dashboard">
+
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<div class="app-shell">
+  <aside class="sidebar" id="sidebar">
+    <a href="dashboard.html" class="brand">
+      <span class="brand-icon"><i class="bi bi-shop"></i></span>
+      <span>sellers<span class="brand-blue">Pro</span></span>
+    </a>
+
+    <div class="admin-mode-label">
+      <i class="bi bi-shield-lock-fill"></i> ADMIN CONTROL CENTER
+    </div>
+
+    <div class="nav-label">MANAGEMENT</div>
+    <nav class="side-nav">
+      <a class="nav-link" href="dashboard.html"><i class="bi bi-grid-1x2"></i><span>Overview</span></a>
+      <a class="nav-link active" href="sellers.html"><i class="bi bi-people"></i><span>Sellers / Users</span></a>
+      <a class="nav-link" href="subscriptions.html"><i class="bi bi-gem"></i><span>Subscriptions</span></a>
+      <a class="nav-link" href="payments.html"><i class="bi bi-wallet2"></i><span>Payment Requests</span></a>
+      <a class="nav-link" href="pricing.html"><i class="bi bi-tags"></i><span>Plans & Pricing</span></a>
+    </nav>
+
+    <div class="nav-label admin-nav-label">SECURITY & RECORDS</div>
+    <nav class="side-nav">
+      <a class="nav-link" href="audit-logs.html"><i class="bi bi-clock-history"></i><span>Admin Activity</span></a>
+    </nav>
+
+    <div class="sidebar-bottom">
+      <div class="admin-sidebar-card">
+        <i class="bi bi-shield-check"></i>
+        <strong>Administrator</strong>
+        <p>Manage your SellersPro platform securely.</p>
+      </div>
+      <button class="nav-link logout-btn" id="adminLogoutBtn" type="button">
+        <i class="bi bi-box-arrow-left"></i><span>Log out</span>
+      </button>
+    </div>
+  </aside>
+
+  <main class="main-area">
+    <header class="topbar">
+      <button class="menu-toggle" id="menuToggle" aria-label="Toggle menu">
+        <i class="bi bi-list"></i>
+      </button>
+
+      <div class="topbar-title">
+        <span class="eyebrow">SELLERSPRO ADMIN</span>
+        <h1>Sellers / Users</h1>
+      </div>
+
+      <div class="admin-user-area">
+        <span class="admin-online-dot"></span>
+        <span class="admin-user-avatar"><i class="bi bi-shield-lock"></i></span>
+        <span class="admin-user-info">
+          <strong id="adminName">Administrator</strong>
+          <small id="adminEmailLabel">Loading...</small>
+        </span>
+      </div>
+    </header>
+
+    <section class="dashboard-content admin-content">
+      <div class="welcome-row">
+        <div>
+          <p class="eyebrow">USER MANAGEMENT</p>
+          <h2>Manage <span>All Sellers</span></h2>
+          <p class="muted">View seller accounts and access their management profile.</p>
+        </div>
+        <button class="admin-refresh-btn" id="refreshSellersBtn" type="button">
+          <i class="bi bi-arrow-clockwise"></i> Refresh
+        </button>
+      </div>
+
+      <div class="admin-alert" id="sellersNotice" role="alert" hidden></div>
+
+      <div class="seller-summary-grid">
+        <div class="seller-summary-card">
+          <span>Total sellers</span>
+          <strong id="sellerTotal">0</strong>
+          <i class="bi bi-people"></i>
+        </div>
+        <div class="seller-summary-card">
+          <span>Active accounts</span>
+          <strong id="sellerActive">0</strong>
+          <i class="bi bi-person-check"></i>
+        </div>
+        <div class="seller-summary-card">
+          <span>Blocked accounts</span>
+          <strong id="sellerBlocked">0</strong>
+          <i class="bi bi-person-slash"></i>
+        </div>
+      </div>
+
+      <div class="panel sellers-panel">
+        <div class="sellers-toolbar">
+          <div>
+            <h3>Seller directory</h3>
+            <p>Search and review registered seller accounts.</p>
+          </div>
+
+          <div class="seller-filters">
+            <div class="seller-search">
+              <i class="bi bi-search"></i>
+              <input id="sellerSearch" type="search" placeholder="Search name, email, business...">
+            </div>
+
+            <select id="sellerStatusFilter" aria-label="Filter seller status">
+              <option value="all">All accounts</option>
+              <option value="active">Active</option>
+              <option value="blocked">Blocked</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="seller-table-wrap">
+          <table class="seller-table">
+            <thead>
+              <tr>
+                <th>SELLER</th>
+                <th>BUSINESS</th>
+                <th>PHONE</th>
+                <th>PLAN</th>
+                <th>ACCOUNT STATUS</th>
+                <th>JOINED</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="sellersTableBody">
+              <tr>
+                <td colspan="7" class="seller-table-message">
+                  <span class="spinner-border spinner-border-sm"></span>
+                  Loading sellers...
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="seller-mobile-list" id="sellerMobileList"></div>
+
+        <div class="seller-table-footer">
+          <span id="sellerResultCount">Loading seller records...</span>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<script type="module" src="../../assets/js/admin/sellers.js"></script>
+</body>
+</html>

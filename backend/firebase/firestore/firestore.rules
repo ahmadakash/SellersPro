@@ -1,0 +1,393 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Active Admin verification
+    function isActiveAdmin() {
+      return request.auth != null
+        && exists(
+          /databases/$(database)/documents/adminUsers/$(request.auth.uid)
+        )
+        && get(
+          /databases/$(database)/documents/adminUsers/$(request.auth.uid)
+        ).data.active == true
+        && get(
+          /databases/$(database)/documents/adminUsers/$(request.auth.uid)
+        ).data.role in ["superadmin", "admin"];
+    }
+
+    // Signed in AND the email address was confirmed through the emailed link
+    function isVerified() {
+      return request.auth != null
+        && request.auth.token.email_verified == true;
+    }
+
+    // The signed-in seller who owns this path AND verified their email
+    function isOwnerVerified(uid) {
+      return isVerified() && request.auth.uid == uid;
+    }
+
+    // Fields only the Admin (or the system) may set on a seller profile
+    function protectedProfileKeys() {
+      return ['uid', 'subscriptionStart', 'subscriptionEnd', 'billingCycle',
+              'role', 'isAdmin', 'isBlocked', 'accountStatus'];
+    }
+
+    // New seller profile: always starts as a Free seller
+    function validNewProfile(userId) {
+      let d = request.resource.data;
+      return d.get('uid', userId) == userId
+        && d.get('plan', 'free') == 'free'
+        && d.get('subscriptionStatus', 'inactive') == 'inactive'
+        && !d.keys().hasAny(['subscriptionStart', 'subscriptionEnd', 'billingCycle',
+                             'role', 'isAdmin', 'isBlocked', 'accountStatus']);
+    }
+
+    // What a seller may change on their OWN profile.
+    // They can edit business info, but can never upgrade themselves to Pro,
+    // extend a subscription, unblock themselves or lower their monthly order counter.
+    function ownerProfileUpdateOk() {
+      let changed = request.resource.data.diff(resource.data).affectedKeys();
+      let d = request.resource.data;
+      return !changed.hasAny(protectedProfileKeys())
+        && (!changed.hasAny(['plan']) || d.plan == 'free')
+        && (!changed.hasAny(['subscriptionStatus']) || d.subscriptionStatus in ['expired', 'inactive'])
+        && (!changed.hasAny(['monthlyOrderCount'])
+            || d.get('orderUsageMonth', '') != resource.data.get('orderUsageMonth', '')
+            || d.monthlyOrderCount >= resource.data.get('monthlyOrderCount', 0));
+    }
+
+    // Admin authorization
+    match /adminUsers/{adminId} {
+      allow get: if request.auth != null
+        && request.auth.uid == adminId;
+
+      allow list, create, update, delete: if false;
+    }
+
+    // Seller profiles and subcollections
+    match /users/{userId} {
+
+      // A seller reads their own profile; an active Admin can read any profile.
+      allow read: if request.auth != null
+        && (request.auth.uid == userId || isActiveAdmin());
+
+      // Registration: a new profile can only be a Free profile.
+      allow create: if request.auth != null
+        && request.auth.uid == userId
+        && validNewProfile(userId);
+
+      allow update: if request.auth != null
+        && (
+          // Seller edits own profile (verified email, protected fields locked)
+          (isOwnerVerified(userId) && ownerProfileUpdateOk())
+          ||
+          // Admin may only change the subscription fields
+          (
+            isActiveAdmin()
+            && request.resource.data.diff(resource.data)
+              .affectedKeys()
+              .hasOnly([
+                "plan",
+                "subscriptionStatus",
+                "subscriptionStart",
+                "subscriptionEnd",
+                "billingCycle",
+                "updatedAt"
+              ])
+          )
+        );
+
+      allow delete: if false;
+
+      // ---- Seller business data: owner (verified) full access, Admin read-only ----
+      match /products/{productId} {
+        allow read: if isOwnerVerified(userId) || isActiveAdmin();
+        allow write: if isOwnerVerified(userId);
+      }
+
+      match /customers/{customerId} {
+        allow read: if isOwnerVerified(userId) || isActiveAdmin();
+        allow write: if isOwnerVerified(userId);
+      }
+
+      match /orders/{orderId} {
+        allow read: if isOwnerVerified(userId) || isActiveAdmin();
+        allow write: if isOwnerVerified(userId);
+
+        match /items/{itemId} {
+          allow read: if isOwnerVerified(userId) || isActiveAdmin();
+          allow write: if isOwnerVerified(userId);
+        }
+      }
+
+      match /notifications/{notificationId} {
+        allow read: if isOwnerVerified(userId) || isActiveAdmin();
+        allow write: if isOwnerVerified(userId);
+      }
+
+      // ---- Subscription requests: seller can only CREATE a pending one ----
+      match /subscriptionRequests/{requestId} {
+        allow read: if isOwnerVerified(userId) || isActiveAdmin();
+
+        allow create: if isOwnerVerified(userId)
+          && request.resource.data.sellerUid == userId
+          && request.resource.data.status == 'pending';
+
+        // Only the Admin decides (approve / reject)
+        allow update: if isActiveAdmin()
+          && request.resource.data.diff(resource.data)
+            .affectedKeys()
+            .hasOnly([
+              "status",
+              "verifiedAt",
+              "verifiedBy",
+              "subscriptionStart",
+              "subscriptionEnd",
+              "rejectionReason"
+            ]);
+
+        allow delete: if false;
+      }
+
+      // Any other subcollection stays closed (default deny).
+    }
+
+    // ===================================================================
+    // Smart Order Link
+    //   publicStores/{sellerUid}                    -> safe public catalog
+    //   publicStores/{sellerUid}/orderRequests/{id} -> customer requests
+    // Customers never touch users/{uid}/**. Requests are an inbox only:
+    // orders, customers, stock and analytics change only when the seller approves.
+    // ===================================================================
+    match /publicStores/{storeId} {
+
+      function isStoreOwner() {
+        return isVerified() && request.auth.uid == storeId;
+      }
+
+      // One doc by id is public (name, price, in-stock flag). Listing is blocked.
+      allow get: if true;
+      allow list: if false;
+
+      allow create, update: if isStoreOwner()
+        && request.resource.data.keys().hasOnly(
+          ['ownerId', 'businessName', 'acceptingOrders', 'products', 'signature', 'updatedAt'])
+        && request.resource.data.ownerId == storeId
+        && request.resource.data.businessName is string
+        && request.resource.data.businessName.size() <= 120
+        && request.resource.data.acceptingOrders is bool
+        && request.resource.data.products is list
+        && request.resource.data.products.size() <= 300;
+
+      allow delete: if isStoreOwner();
+
+      match /orderRequests/{requestId} {
+
+        function storeAccepting() {
+          return get(/databases/$(database)/documents/publicStores/$(storeId)).data.acceptingOrders == true;
+        }
+
+        function validLine(line) {
+          return line is map
+            && line.keys().hasOnly(['productId', 'productName', 'quantity'])
+            && line.keys().hasAll(['productId', 'quantity'])
+            && line.productId is string
+            && line.productId.size() > 0 && line.productId.size() <= 40
+            && line.quantity is int
+            && line.quantity >= 1 && line.quantity <= 100
+            && (!('productName' in line)
+                || (line.productName is string && line.productName.size() <= 120));
+        }
+
+        // Rules have no loops, so up to 10 lines are checked explicitly.
+        function lineOk(items, i) {
+          return items.size() <= i || validLine(items[i]);
+        }
+
+        function validRequest() {
+          let d = request.resource.data;
+          return d.keys().hasOnly(
+              ['customerName', 'customerPhone', 'customerEmail', 'customerAddress',
+               'deliveryArea', 'notes', 'items', 'status', 'createdAt'])
+            && d.keys().hasAll(
+              ['customerName', 'customerPhone', 'customerEmail', 'customerAddress',
+               'deliveryArea', 'notes', 'items', 'status', 'createdAt'])
+            && d.customerName is string
+            && d.customerName.size() >= 2 && d.customerName.size() <= 100
+            && d.customerPhone is string
+            && d.customerPhone.matches('^[0-9+() -]{6,20}$')
+            && d.customerEmail is string && d.customerEmail.size() <= 120
+            && (d.customerEmail == '' || d.customerEmail.matches('^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$'))
+            && d.customerAddress is string
+            && d.customerAddress.size() >= 5 && d.customerAddress.size() <= 300
+            && d.deliveryArea in ['inside', 'outside']
+            && d.notes is string && d.notes.size() <= 500
+            && d.status == 'new'
+            && d.createdAt == request.time
+            && d.items is list
+            && d.items.size() >= 1 && d.items.size() <= 10
+            && lineOk(d.items, 0) && lineOk(d.items, 1) && lineOk(d.items, 2)
+            && lineOk(d.items, 3) && lineOk(d.items, 4) && lineOk(d.items, 5)
+            && lineOk(d.items, 6) && lineOk(d.items, 7) && lineOk(d.items, 8)
+            && lineOk(d.items, 9);
+        }
+
+        // Customers can ONLY create. They can never read, list, edit or delete.
+        allow create: if requestId.size() <= 40
+          && storeAccepting()
+          && validRequest();
+
+        // Only the owning seller can read/remove requests. Nobody can edit them.
+        allow read, delete: if isStoreOwner();
+        allow update: if false;
+      }
+    }
+
+    // ===================================================================
+    // loginIndex/{01XXXXXXXXX} = { uid, email }
+    // Lets a seller sign in with "mobile number + password" and keeps every
+    // mobile number unique. Only a VERIFIED owner can create it, only for the
+    // number saved in their own profile, and the first owner of a number keeps it.
+    // One document can be read by id; listing is blocked.
+    // ===================================================================
+    match /loginIndex/{phone} {
+
+      function validIndexData() {
+        return request.resource.data.keys().hasOnly(['uid', 'email', 'createdAt'])
+          && request.resource.data.uid == request.auth.uid
+          && request.resource.data.email == request.auth.token.email
+          && phone.matches('^01[3-9][0-9]{8}$')
+          && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.phone == phone;
+      }
+
+      allow get: if true;
+      allow list: if false;
+
+      allow create: if isVerified() && validIndexData();
+
+      allow update: if isVerified()
+        && resource.data.uid == request.auth.uid
+        && validIndexData();
+
+      allow delete: if isVerified()
+        && resource.data.uid == request.auth.uid;
+    }
+
+    // Payment records
+    match /payments/{paymentId} {
+      allow read: if isActiveAdmin()
+        || (
+          request.auth != null
+          && resource.data.sellerUid == request.auth.uid
+        );
+
+      // Price the Admin published in platformSettings/billing for a billing cycle
+      // (falls back to the submitted amount only if the setting is missing).
+      allow create: if isVerified()
+        && request.resource.data.keys().hasOnly([
+          'sellerUid', 'sellerName', 'sellerEmail', 'plan', 'billingCycle',
+          'amount', 'currency', 'paymentMethod', 'senderNumber', 'transactionId',
+          'status', 'submittedAt', 'subscriptionStart', 'subscriptionEnd',
+          'verifiedAt', 'verifiedBy'
+        ])
+        && request.resource.data.sellerUid == request.auth.uid
+        && request.resource.data.status == "pending"
+        && request.resource.data.plan == "Pro"
+        && request.resource.data.billingCycle in ["monthly", "yearly"]
+        && request.resource.data.amount is number
+        && request.resource.data.amount > 0
+        && request.resource.data.amount == get(/databases/$(database)/documents/platformSettings/billing)
+            .data.get(
+              request.resource.data.billingCycle == "monthly" ? "monthlyPrice" : "yearlyPrice",
+              request.resource.data.amount)
+        && request.resource.data.currency == "BDT"
+        && request.resource.data.paymentMethod in ["bKash", "Nagad"]
+        && request.resource.data.senderNumber is string
+        && request.resource.data.senderNumber.size() >= 6
+        && request.resource.data.senderNumber.size() <= 25
+        && request.resource.data.transactionId is string
+        && request.resource.data.transactionId.size() >= 4
+        && request.resource.data.transactionId.size() <= 40
+        && request.resource.data.sellerName is string
+        && request.resource.data.sellerName.size() <= 120
+        && request.resource.data.sellerEmail is string
+        && request.resource.data.sellerEmail.size() <= 120
+        && request.resource.data.submittedAt == request.time
+        && request.resource.data.subscriptionStart == null
+        && request.resource.data.subscriptionEnd == null
+        && request.resource.data.verifiedAt == null
+        && request.resource.data.verifiedBy == null;
+
+      allow update: if isActiveAdmin()
+        && resource.data.status == "pending"
+        && request.resource.data.sellerUid == resource.data.sellerUid
+        && request.resource.data.amount == resource.data.amount
+        && request.resource.data.transactionId == resource.data.transactionId
+        && request.resource.data.paymentMethod == resource.data.paymentMethod
+        && request.resource.data.verifiedBy == request.auth.uid
+        && request.resource.data.verifiedAt == request.time
+        && request.resource.data.status in ["approved", "rejected"]
+        && request.resource.data.diff(resource.data)
+          .affectedKeys()
+          .hasOnly([
+            "status",
+            "verifiedAt",
+            "verifiedBy",
+            "rejectionReason",
+            "subscriptionStart",
+            "subscriptionEnd"
+          ])
+        && (
+          (
+            request.resource.data.status == "approved"
+            && request.resource.data.subscriptionStart == request.time
+            && request.resource.data.subscriptionEnd is timestamp
+            && request.resource.data.subscriptionEnd > request.time
+            && !request.resource.data.diff(resource.data)
+              .affectedKeys().hasAny(["rejectionReason"])
+          )
+          ||
+          (
+            request.resource.data.status == "rejected"
+            && request.resource.data.rejectionReason is string
+            && request.resource.data.rejectionReason.size() > 0
+            && request.resource.data.rejectionReason.size() <= 500
+            && !request.resource.data.diff(resource.data)
+              .affectedKeys().hasAny([
+                "subscriptionStart",
+                "subscriptionEnd"
+              ])
+          )
+        );
+
+      allow delete: if false;
+    }
+
+    // Platform billing settings
+    match /platformSettings/{settingId} {
+
+      // Logged-in users can read pricing
+      allow read: if request.auth != null;
+
+      // Only active Admin can change pricing
+      allow write: if isActiveAdmin();
+    }
+
+    // Admin audit logs
+    match /auditLogs/{logId} {
+
+      // Only active Admin can read audit logs
+      allow read: if isActiveAdmin();
+
+      // Client apps cannot create, update or delete logs
+      allow write: if false;
+    }
+
+    // Deny everything else
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

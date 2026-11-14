@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Plans & Pricing | sellersPro Admin</title>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+  <link rel="stylesheet" href="../../assets/css/dashboard.css">
+  <link rel="stylesheet" href="../../assets/css/admin.css">
+  <link rel="stylesheet" href="../../assets/css/pricing.css">
+</head>
+
+<body class="admin-dashboard">
+
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<div class="app-shell">
+  <aside class="sidebar" id="sidebar">
+    <a href="dashboard.html" class="brand">
+      <span class="brand-icon"><i class="bi bi-shop"></i></span>
+      <span>sellers<span class="brand-blue">Pro</span></span>
+    </a>
+
+    <div class="admin-mode-label">
+      <i class="bi bi-shield-lock-fill"></i> ADMIN CONTROL CENTER
+    </div>
+
+    <div class="nav-label">MANAGEMENT</div>
+    <nav class="side-nav">
+      <a class="nav-link" href="dashboard.html"><i class="bi bi-grid-1x2"></i><span>Overview</span></a>
+      <a class="nav-link" href="sellers.html"><i class="bi bi-people"></i><span>Sellers / Users</span></a>
+      <a class="nav-link" href="subscriptions.html"><i class="bi bi-gem"></i><span>Subscriptions</span></a>
+      <a class="nav-link" href="payments.html"><i class="bi bi-wallet2"></i><span>Payment Requests</span></a>
+      <a class="nav-link active" href="pricing.html"><i class="bi bi-tags"></i><span>Plans & Pricing</span></a>
+    </nav>
+
+    <div class="nav-label admin-nav-label">SECURITY & RECORDS</div>
+    <nav class="side-nav">
+      <a class="nav-link" href="audit-logs.html"><i class="bi bi-clock-history"></i><span>Admin Activity</span></a>
+    </nav>
+
+    <div class="sidebar-bottom">
+      <div class="admin-sidebar-card">
+        <i class="bi bi-shield-check"></i>
+        <strong>Administrator</strong>
+        <p>Manage your SellersPro platform securely.</p>
+      </div>
+
+      <button class="nav-link logout-btn" id="adminLogoutBtn" type="button">
+        <i class="bi bi-box-arrow-left"></i><span>Log out</span>
+      </button>
+    </div>
+  </aside>
+
+  <main class="main-area">
+    <header class="topbar">
+      <button class="menu-toggle" id="menuToggle" aria-label="Toggle menu">
+        <i class="bi bi-list"></i>
+      </button>
+
+      <div class="topbar-title">
+        <span class="eyebrow">SELLERSPRO ADMIN</span>
+        <h1>Plans & Pricing</h1>
+      </div>
+
+      <div class="admin-user-area">
+        <span class="admin-online-dot"></span>
+        <span class="admin-user-avatar"><i class="bi bi-shield-lock"></i></span>
+        <span class="admin-user-info">
+          <strong id="adminName">Administrator</strong>
+          <small id="adminEmailLabel">Loading...</small>
+        </span>
+      </div>
+    </header>
+
+    <section class="dashboard-content admin-content pricing-content">
+
+      <div class="welcome-row">
+        <div>
+          <p class="eyebrow">SUBSCRIPTION MANAGEMENT</p>
+          <h2>Manage <span>Plan Pricing</span></h2>
+          <p class="muted">Configure subscription prices and Free plan order limits.</p>
+        </div>
+
+        <button class="admin-refresh-btn" id="refreshPricingBtn" type="button">
+          <i class="bi bi-arrow-clockwise"></i> Refresh
+        </button>
+      </div>
+
+      <div class="admin-alert" id="pricingNotice" role="alert" hidden></div>
+
+      <div class="pricing-plan-grid">
+
+        <div class="pricing-plan-card free-plan-card">
+          <div class="pricing-plan-top">
+            <span class="pricing-plan-icon"><i class="bi bi-shop"></i></span>
+            <span class="pricing-plan-label">STARTER PLAN</span>
+          </div>
+
+          <h3>Free Plan</h3>
+          <p class="pricing-description">For sellers who are just getting started.</p>
+
+          <div class="pricing-price">
+            <strong>৳0</strong>
+            <span>/ forever</span>
+          </div>
+
+          <div class="pricing-feature">
+            <i class="bi bi-check-circle-fill"></i>
+            <span>Maximum <strong id="freeLimitPreview">10</strong> orders per month</span>
+          </div>
+
+          <div class="pricing-feature">
+            <i class="bi bi-check-circle-fill"></i>
+            <span>Basic seller dashboard</span>
+          </div>
+        </div>
+
+        <div class="pricing-plan-card pro-plan-card">
+          <div class="pricing-plan-top">
+            <span class="pricing-plan-icon"><i class="bi bi-gem"></i></span>
+            <span class="pricing-plan-label">PREMIUM PLAN</span>
+          </div>
+
+          <h3>Pro Plan</h3>
+          <p class="pricing-description">For growing businesses that need more flexibility.</p>
+
+          <div class="pricing-price">
+            <strong id="monthlyPricePreview">৳100</strong>
+            <span>/ month</span>
+          </div>
+
+          <div class="pricing-feature">
+            <i class="bi bi-check-circle-fill"></i>
+            <span>Unlimited orders</span>
+          </div>
+
+          <div class="pricing-feature">
+            <i class="bi bi-check-circle-fill"></i>
+            <span>Full seller dashboard</span>
+          </div>
+
+          <div class="pricing-yearly">
+            Yearly: <strong id="yearlyPricePreview">৳1,000</strong>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="panel pricing-settings-panel">
+        <div class="pricing-panel-heading">
+          <div>
+            <h3><i class="bi bi-sliders"></i> Pricing Configuration</h3>
+            <p>Changes will be saved to the platform billing settings.</p>
+          </div>
+
+          <span class="pricing-live-label">
+            <i class="bi bi-cloud-check"></i> Firebase Connected
+          </span>
+        </div>
+
+        <form id="pricingForm">
+
+          <div class="pricing-form-grid">
+
+            <div class="pricing-input-group">
+              <label for="monthlyPrice">Pro Monthly Price (BDT)</label>
+              <div class="pricing-input-wrap">
+                <span>৳</span>
+                <input
+                  type="number"
+                  id="monthlyPrice"
+                  min="1"
+                  step="1"
+                  value="100"
+                  required
+                >
+              </div>
+              <small>Monthly subscription amount.</small>
+            </div>
+
+            <div class="pricing-input-group">
+              <label for="yearlyPrice">Pro Yearly Price (BDT)</label>
+              <div class="pricing-input-wrap">
+                <span>৳</span>
+                <input
+                  type="number"
+                  id="yearlyPrice"
+                  min="1"
+                  step="1"
+                  value="1000"
+                  required
+                >
+              </div>
+              <small>Yearly subscription amount.</small>
+            </div>
+
+            <div class="pricing-input-group">
+              <label for="freeOrderLimit">Free Plan Monthly Order Limit</label>
+              <div class="pricing-input-wrap">
+                <i class="bi bi-cart-check"></i>
+                <input
+                  type="number"
+                  id="freeOrderLimit"
+                  min="1"
+                  step="1"
+                  value="10"
+                  required
+                >
+              </div>
+              <small>Maximum orders allowed per month.</small>
+            </div>
+
+          </div>
+
+          <div class="pricing-form-footer">
+            <span id="pricingUpdatedAt">Loading pricing information...</span>
+
+            <button class="btn pricing-save-btn" id="savePricingBtn" type="submit">
+              <i class="bi bi-check2-circle"></i>
+              Save Pricing
+            </button>
+          </div>
+
+        </form>
+      </div>
+
+      <div class="pricing-info-note">
+        <i class="bi bi-info-circle-fill"></i>
+        <div>
+          <strong>Important</strong>
+          <p>
+            Price changes apply to new subscription requests. Existing payment
+            requests must retain the amount recorded when they were submitted.
+          </p>
+        </div>
+      </div>
+
+    </section>
+  </main>
+</div>
+
+<script type="module" src="../../assets/js/admin/pricing.js"></script>
+</body>
+</html>

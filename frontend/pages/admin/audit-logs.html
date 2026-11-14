@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Activity | sellersPro</title>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+  <link rel="stylesheet" href="../../assets/css/dashboard.css">
+  <link rel="stylesheet" href="../../assets/css/admin.css">
+  <link rel="stylesheet" href="../../assets/css/audit-logs.css">
+</head>
+
+<body class="admin-dashboard">
+
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<div class="app-shell">
+  <aside class="sidebar" id="sidebar">
+
+    <a href="dashboard.html" class="brand">
+      <span class="brand-icon"><i class="bi bi-shop"></i></span>
+      <span>sellers<span class="brand-blue">Pro</span></span>
+    </a>
+
+    <div class="admin-mode-label">
+      <i class="bi bi-shield-lock-fill"></i> ADMIN CONTROL CENTER
+    </div>
+
+    <div class="nav-label">MANAGEMENT</div>
+
+    <nav class="side-nav">
+      <a class="nav-link" href="dashboard.html"><i class="bi bi-grid-1x2"></i><span>Overview</span></a>
+      <a class="nav-link" href="sellers.html"><i class="bi bi-people"></i><span>Sellers / Users</span></a>
+      <a class="nav-link" href="subscriptions.html"><i class="bi bi-gem"></i><span>Subscriptions</span></a>
+      <a class="nav-link" href="payments.html"><i class="bi bi-wallet2"></i><span>Payment Requests</span></a>
+      <a class="nav-link" href="pricing.html"><i class="bi bi-tags"></i><span>Plans & Pricing</span></a>
+    </nav>
+
+    <div class="nav-label admin-nav-label">SECURITY & RECORDS</div>
+
+    <nav class="side-nav">
+      <a class="nav-link active" href="audit-logs.html">
+        <i class="bi bi-clock-history"></i><span>Admin Activity</span>
+      </a>
+    </nav>
+
+    <div class="sidebar-bottom">
+      <div class="admin-sidebar-card">
+        <i class="bi bi-shield-check"></i>
+        <strong>Administrator</strong>
+        <p>Manage your SellersPro platform securely.</p>
+      </div>
+
+      <button class="nav-link logout-btn" id="adminLogoutBtn" type="button">
+        <i class="bi bi-box-arrow-left"></i><span>Log out</span>
+      </button>
+    </div>
+  </aside>
+
+  <main class="main-area">
+
+    <header class="topbar">
+      <button class="menu-toggle" id="menuToggle" aria-label="Toggle menu">
+        <i class="bi bi-list"></i>
+      </button>
+
+      <div class="topbar-title">
+        <span class="eyebrow">SELLERSPRO ADMIN</span>
+        <h1>Admin Activity</h1>
+      </div>
+
+      <div class="admin-user-area">
+        <span class="admin-online-dot"></span>
+        <span class="admin-user-avatar"><i class="bi bi-shield-lock"></i></span>
+        <span class="admin-user-info">
+          <strong id="adminName">Administrator</strong>
+          <small id="adminEmailLabel">Loading...</small>
+        </span>
+      </div>
+    </header>
+
+    <section class="dashboard-content admin-content audit-content">
+
+      <div class="audit-heading">
+        <div>
+          <p class="eyebrow">SECURITY & TRANSPARENCY</p>
+          <h2>Activity <span>Logs</span></h2>
+          <p>Track important administrative activities across your platform.</p>
+        </div>
+
+        <button class="audit-refresh-btn" id="refreshLogsBtn" type="button">
+          <i class="bi bi-arrow-clockwise"></i> Refresh
+        </button>
+      </div>
+
+      <div class="audit-stats">
+        <div class="audit-stat-card">
+          <span class="audit-stat-icon"><i class="bi bi-list-check"></i></span>
+          <div><small>Total Activities</small><strong id="totalLogs">0</strong></div>
+        </div>
+
+        <div class="audit-stat-card">
+          <span class="audit-stat-icon"><i class="bi bi-credit-card"></i></span>
+          <div><small>Payment Actions</small><strong id="paymentLogs">0</strong></div>
+        </div>
+
+        <div class="audit-stat-card">
+          <span class="audit-stat-icon"><i class="bi bi-people"></i></span>
+          <div><small>Seller Actions</small><strong id="sellerLogs">0</strong></div>
+        </div>
+
+        <div class="audit-stat-card">
+          <span class="audit-stat-icon"><i class="bi bi-gear"></i></span>
+          <div><small>Settings Changes</small><strong id="settingsLogs">0</strong></div>
+        </div>
+      </div>
+
+      <div class="audit-panel">
+
+        <div class="audit-toolbar">
+          <div>
+            <h3>Activity History</h3>
+            <p>Administrative actions recorded by the system.</p>
+          </div>
+
+          <div class="audit-controls">
+            <div class="audit-search">
+              <i class="bi bi-search"></i>
+              <input type="search" id="logSearch" placeholder="Search activity...">
+            </div>
+
+            <select id="logFilter" aria-label="Filter activities">
+              <option value="all">All Activities</option>
+              <option value="payment">Payment</option>
+              <option value="seller">Seller</option>
+              <option value="subscription">Subscription</option>
+              <option value="settings">Settings</option>
+              <option value="security">Security</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="audit-feedback" id="auditFeedback" hidden></div>
+
+        <div class="audit-loading" id="auditLoading">
+          <div class="spinner-border spinner-border-sm"></div>
+          <span>Loading activity logs...</span>
+        </div>
+
+        <div class="audit-empty" id="auditEmpty" hidden>
+          <i class="bi bi-journal-text"></i>
+          <h4>No activity records found</h4>
+          <p>Administrative actions will appear here when audit logging is enabled.</p>
+        </div>
+
+        <div class="table-responsive" id="auditTableWrap" hidden>
+          <table class="table audit-table align-middle">
+            <thead>
+              <tr>
+                <th>Activity</th>
+                <th>Administrator</th>
+                <th>Target</th>
+                <th>Date & Time</th>
+                <th>Category</th>
+              </tr>
+            </thead>
+            <tbody id="auditTableBody"></tbody>
+          </table>
+        </div>
+
+        <div class="audit-footer">
+          <span id="auditResultCount">0 records</span>
+          <span><i class="bi bi-shield-check"></i> Admin-only records</span>
+        </div>
+
+      </div>
+
+    </section>
+  </main>
+</div>
+
+<script type="module" src="../../assets/js/admin/audit-logs.js"></script>
+</body>
+</html>

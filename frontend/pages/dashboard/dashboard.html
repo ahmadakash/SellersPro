@@ -1,0 +1,387 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard | sellersPro</title>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+  <link rel="stylesheet" href="../../assets/css/dashboard.css">
+  <link rel="stylesheet" href="../../assets/css/order-requests.css">
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar" id="sidebar">
+      <a href="../home/index.html" class="brand">
+        <span class="brand-icon"><i class="bi bi-shop"></i></span>
+        <span>sellers<span class="brand-blue">Pro</span></span>
+      </a>
+
+      <div class="nav-label">WORKSPACE</div>
+      <nav class="side-nav">
+        <a class="nav-link active" href="dashboard.html">
+          <i class="bi bi-grid-1x2"></i><span>Dashboard</span>
+        </a>
+        <a class="nav-link" href="../products/products.html">
+          <i class="bi bi-box-seam"></i><span>Products</span>
+        </a>
+        <a class="nav-link" href="../orders/orders.html">
+          <i class="bi bi-receipt"></i>
+          <span>Orders</span>
+        </a>
+        <a class="nav-link" id="navRequestsLink" href="../orders/orders.html#requests"><i class="bi bi-inbox"></i><span>Order requests</span><b class="requests-nav-badge" data-requests-count data-hide-zero hidden>0</b></a>
+        <a class="nav-link" href="../customers/customers.html">
+          <i class="bi bi-people"></i>
+          <span>Customers</span>
+        </a>
+        <a class="nav-link" href="../analytics/analytics.html">
+          <i class="bi bi-bar-chart-line"></i>
+          <span>Analytics</span>
+        </a>
+        <a class="nav-link" href="../settings/settings.html">
+          <i class="bi bi-gear"></i>
+          <span>Settings</span>
+        </a>
+        <a class="nav-link" href="../subscription/subscription.html">
+          <i class="bi bi-stars"></i>
+          <span>Subscription</span>
+        </a>
+      </nav>
+
+      <div class="sidebar-bottom">
+        <a href="../subscription/subscription.html"
+          class="plan-card plan-card-link"
+          id="sellerPlanCard">
+
+          <div class="plan-card-top">
+            <div class="plan-icon"><i class="bi bi-stars"></i></div>
+            <span class="plan-card-action" id="planCardAction">Upgrade</span>
+          </div>
+
+          <strong id="sidebarPlanName">Free plan</strong>
+          <p id="sidebarPlanDescription">Get started with your business.</p>
+          <small id="sidebarPlanLimit">Order limit: 10 orders / month</small>
+        </a>
+        <button class="nav-link logout-btn" id="logoutBtn" type="button">
+          <i class="bi bi-box-arrow-left"></i><span>Log out</span>
+        </button>
+      </div>
+    </aside>
+
+    <main class="main-area">
+      <header class="topbar">
+        <button class="menu-toggle" id="menuToggle" aria-label="Toggle menu">
+          <i class="bi bi-list"></i>
+        </button>
+        <div class="topbar-title">
+          <span class="eyebrow">SELLER WORKSPACE</span>
+          <h1>Dashboard</h1>
+        </div>
+        <div class="notification-wrap">
+          <button
+            type="button"
+            class="notification-btn"
+            id="notificationBtn"
+            aria-label="Open notifications"
+            aria-expanded="false"
+            aria-controls="notificationDropdown"
+          >
+            <i class="bi bi-bell"></i>
+            <span class="notification-count" id="notificationCount" hidden>0</span>
+          </button>
+
+          <section class="notification-dropdown" id="notificationDropdown" hidden>
+            <div class="notification-header">
+              <div>
+                <strong>Notifications</strong>
+                <small id="notificationSummary">You're all caught up</small>
+              </div>
+              <button type="button" id="markAllReadBtn">Mark all read</button>
+            </div>
+
+            <div class="notification-list" id="notificationList">
+              <div class="notification-empty">
+                <i class="bi bi-bell-slash"></i>
+                <p>No notifications yet</p>
+              </div>
+            </div>
+          </section>
+        </div>
+        <button
+          class="user-area profile-trigger"
+          id="profileTrigger"
+          type="button"
+          aria-haspopup="dialog"
+          aria-controls="profileModal"
+          aria-label="Open seller profile"
+        >
+          <span class="user-avatar" id="userAvatar">S</span>
+          <span class="user-info">
+            <strong id="userName">Loading...</strong>
+            <span id="userBusiness">Your business</span>
+          </span>
+          <i class="bi bi-chevron-down profile-chevron"></i>
+        </button>
+      </header>
+
+      <section class="dashboard-content">
+        <div class="welcome-row">
+          <div>
+            <p class="eyebrow">YOUR BUSINESS AT A GLANCE</p>
+            <h2>Welcome back, <span id="welcomeName">Seller</span>!</h2>
+            <p class="muted">Keep everything organized in one place.</p>
+          </div>
+          <a href="../orders/orders.html" class="primary-btn">
+            <i class="bi bi-plus-lg"></i> Create new order
+          </a>
+        </div>
+
+        <div class="notice" id="dashboardNotice" role="status" hidden></div>
+
+        <section class="panel smart-panel" data-smart-link-panel>
+          <div class="smart-panel-head">
+            <div>
+              <h3><i class="bi bi-link-45deg"></i> Smart order link</h3>
+              <p>Send this link to customers. They fill a short form, you approve it, and the customer and order are added for you.</p>
+            </div>
+          </div>
+
+          <div class="smart-link-row">
+            <input type="text" readonly data-smart-link-input value="Preparing your link..." aria-label="Smart order link">
+            <div class="smart-link-actions">
+              <button class="smart-btn solid" type="button" data-copy-smart-link><i class="bi bi-clipboard"></i> Copy</button>
+              <button class="smart-btn" type="button" data-share-smart-link><i class="bi bi-share"></i> Share</button>
+              <button class="smart-btn" type="button" data-open-smart-link><i class="bi bi-box-arrow-up-right"></i> Preview</button>
+            </div>
+          </div>
+
+          <p class="smart-feedback" data-smart-link-feedback role="status" hidden></p>
+
+          <div class="smart-foot">
+            <label class="smart-switch">
+              <input type="checkbox" data-accepting-toggle checked disabled>
+              <span class="track"></span>
+              <span data-accepting-label>Accepting requests</span>
+            </label>
+            <span class="smart-summary"><span data-requests-summary>Checking requests...</span> <a href="../orders/orders.html#requests">Review requests</a></span>
+          </div>
+        </section>
+
+        <div class="section-heading">
+          <div>
+            <h3>Business overview</h3>
+            <p>Your activity summary will appear here.</p>
+          </div>
+          <span class="date-chip"><i class="bi bi-calendar3"></i> Overview</span>
+        </div>
+
+        <div class="stats-grid">
+          <article class="stat-card">
+            <div class="stat-top">
+              <span>Total orders</span>
+              <span class="stat-icon icon-blue"><i class="bi bi-receipt"></i></span>
+            </div>
+            <div class="stat-value" id="totalOrders">0</div>
+            <p>Orders recorded</p>
+          </article>
+          <article class="stat-card">
+            <div class="stat-top">
+              <span>Total products</span>
+              <span class="stat-icon icon-purple"><i class="bi bi-box-seam"></i></span>
+            </div>
+            <div class="stat-value" id="totalProducts">0</div>
+            <p>Products added</p>
+          </article>
+          <article class="stat-card">
+            <div class="stat-top">
+              <span>Customers</span>
+              <span class="stat-icon icon-green"><i class="bi bi-people"></i></span>
+            </div>
+            <div class="stat-value" id="totalCustomers">0</div>
+            <p>Customer records</p>
+          </article>
+          <article class="stat-card">
+            <div class="stat-top">
+              <span>Low stock items</span>
+              <span class="stat-icon icon-orange"><i class="bi bi-exclamation-triangle"></i></span>
+            </div>
+            <div class="stat-value" id="lowStockItems">0</div>
+            <p>Items needing attention</p>
+          </article>
+        </div>
+
+        <div class="content-grid">
+          <section class="panel recent-panel">
+            <div class="panel-heading">
+              <div>
+                <h3>Recent orders</h3>
+                <p>Your latest sales activity</p>
+              </div>
+              <a href="../orders/orders.html">View all</a>
+            </div>
+            <div id="recentOrdersList" class="recent-orders-list">
+              <div class="empty-state">
+                <div class="empty-icon"><i class="bi bi-hourglass-split"></i></div>
+                <strong>Loading orders...</strong>
+              </div>
+            </div>
+          </section>
+
+          <section class="panel quick-panel">
+            <div class="panel-heading">
+              <div>
+                <h3>Quick actions</h3>
+                <p>Get started with a task</p>
+              </div>
+            </div>
+            <a class="quick-action" href="../orders/orders.html#requests">
+              <span class="quick-icon icon-orange"><i class="bi bi-inbox"></i></span>
+              <span><strong>Order requests <b class="requests-nav-badge" data-requests-count data-hide-zero hidden>0</b></strong><small>Approve customer requests</small></span>
+              <i class="bi bi-chevron-right arrow"></i>
+            </a>
+            <a class="quick-action" href="../products/products.html">
+              <span class="quick-icon icon-blue">
+                <i class="bi bi-plus-square"></i>
+              </span>
+              <span>
+                <strong>Add a product</strong>
+                <small>Build your product list</small>
+              </span>
+              <i class="bi bi-chevron-right arrow"></i>
+            </a>
+            <a class="quick-action" href="../customers/customers.html">
+            <span class="quick-icon icon-green">
+              <i class="bi bi-person-plus"></i>
+            </span>
+            <span>
+              <strong>Add a customer</strong>
+              <small>Save customer details</small>
+            </span>
+            <i class="bi bi-chevron-right arrow"></i>
+            </a>
+            <a class="quick-action" href="../orders/orders.html">
+              <span class="quick-icon icon-purple"><i class="bi bi-bag-plus"></i></span>
+              <span><strong>Create an order</strong><small>Record a new sale</small></span>
+              <i class="bi bi-chevron-right arrow"></i>
+            </a>
+          </section>
+        </div>
+
+        <footer class="page-footer">
+          <span>© sellersPro</span>
+          <span>Simple tools for growing businesses.</span>
+        </footer>
+      </section>
+    </main>
+  </div>
+  
+
+  <div
+  class="profile-modal"
+  id="profileModal"
+  hidden
+>
+  <div class="profile-backdrop" data-close-profile></div>
+
+  <section
+    class="profile-dialog"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="profileModalTitle"
+  >
+    <div class="profile-modal-header">
+      <div>
+        <p class="eyebrow">ACCOUNT SETTINGS</p>
+        <h2 id="profileModalTitle">Seller profile</h2>
+        <p class="muted">Manage your personal and business details.</p>
+      </div>
+
+      <button
+        type="button"
+        class="profile-close"
+        id="closeProfileBtn"
+        aria-label="Close profile"
+      >
+        <i class="bi bi-x-lg"></i>
+      </button>
+    </div>
+
+    <form id="profileForm">
+      <div class="profile-form-grid">
+        <div class="profile-field">
+          <label for="profileName">Full name</label>
+          <input
+            id="profileName"
+            name="name"
+            type="text"
+            maxlength="100"
+            required
+          >
+        </div>
+
+        <div class="profile-field">
+          <label for="profileBusinessName">Business name</label>
+          <input
+            id="profileBusinessName"
+            name="businessName"
+            type="text"
+            maxlength="120"
+            required
+          >
+        </div>
+
+        <div class="profile-field">
+          <label for="profileEmail">Email address</label>
+          <input
+            id="profileEmail"
+            name="email"
+            type="email"
+            readonly
+          >
+          <small>Email changes are managed separately.</small>
+        </div>
+
+        <div class="profile-field">
+          <label for="profilePhone">Phone number</label>
+          <input
+            id="profilePhone"
+            name="phone"
+            type="tel"
+            maxlength="25"
+          >
+        </div>
+      </div>
+
+      <p class="profile-feedback" id="profileFeedback" role="status" hidden></p>
+
+      <div class="profile-actions">
+        <button
+          type="button"
+          class="profile-cancel-btn"
+          id="cancelProfileBtn"
+        >
+          Cancel
+        </button>
+
+        <button
+          type="submit"
+          class="primary-btn"
+          id="saveProfileBtn"
+        >
+          Save changes
+        </button>
+      </div>
+    </form>
+  </section>
+</div>
+
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+  <script type="module" src="../../assets/js/auth/dashboard.js"></script>
+  <script type="module" src="../../assets/js/services/plan-status.js"></script>
+<script type="module" src="../../assets/js/services/requests-widget.js"></script>
+<script type="module" src="../../assets/js/services/verify-gate.js"></script>
+</body>
+</html>

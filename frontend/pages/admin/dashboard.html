@@ -1,0 +1,187 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard | sellersPro</title>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+  <link rel="stylesheet" href="../../assets/css/dashboard.css">
+  <link rel="stylesheet" href="../../assets/css/admin.css">
+</head>
+<body class="admin-dashboard">
+
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<div class="app-shell">
+  <aside class="sidebar" id="sidebar">
+    <a href="dashboard.html" class="brand">
+      <span class="brand-icon"><i class="bi bi-shop"></i></span>
+      <span>sellers<span class="brand-blue">Pro</span></span>
+    </a>
+
+    <div class="admin-mode-label">
+      <i class="bi bi-shield-lock-fill"></i> ADMIN CONTROL CENTER
+    </div>
+
+    <div class="nav-label">MANAGEMENT</div>
+    <nav class="side-nav">
+      <a class="nav-link active" href="dashboard.html">
+        <i class="bi bi-grid-1x2"></i><span>Overview</span>
+      </a>
+      <a class="nav-link" href="sellers.html">
+        <i class="bi bi-people"></i><span>Sellers / Users</span>
+      </a>
+      <a class="nav-link" href="subscriptions.html">
+        <i class="bi bi-gem"></i><span>Subscriptions</span>
+      </a>
+      <a class="nav-link" href="payments.html">
+        <i class="bi bi-wallet2"></i><span>Payment Requests</span>
+        <span class="nav-count" id="pendingPaymentCount">—</span>
+      </a>
+      <a class="nav-link" href="pricing.html">
+        <i class="bi bi-tags"></i><span>Plans & Pricing</span>
+      </a>
+    </nav>
+
+    <div class="nav-label admin-nav-label">SECURITY & RECORDS</div>
+    <nav class="side-nav">
+      <a class="nav-link" href="audit-logs.html">
+        <i class="bi bi-clock-history"></i><span>Admin Activity</span>
+      </a>
+    </nav>
+
+    <div class="sidebar-bottom">
+      <div class="admin-sidebar-card">
+        <i class="bi bi-shield-check"></i>
+        <strong>Administrator</strong>
+        <p>Manage your SellersPro platform securely.</p>
+      </div>
+      <button class="nav-link logout-btn" id="adminLogoutBtn" type="button">
+        <i class="bi bi-box-arrow-left"></i><span>Log out</span>
+      </button>
+    </div>
+  </aside>
+
+  <main class="main-area">
+    <header class="topbar">
+      <button class="menu-toggle" id="menuToggle" aria-label="Toggle menu">
+        <i class="bi bi-list"></i>
+      </button>
+
+      <div class="topbar-title">
+        <span class="eyebrow">SELLERSPRO ADMIN</span>
+        <h1>Overview</h1>
+      </div>
+
+      <div class="admin-user-area">
+        <span class="admin-online-dot"></span>
+        <span class="admin-user-avatar"><i class="bi bi-shield-lock"></i></span>
+        <span class="admin-user-info">
+          <strong id="adminName">Administrator</strong>
+          <small id="adminEmailLabel">Loading...</small>
+        </span>
+      </div>
+    </header>
+
+    <section class="dashboard-content admin-content">
+      <div class="welcome-row">
+        <div>
+          <p class="eyebrow">PLATFORM OVERVIEW</p>
+          <h2>Welcome to <span>Admin Control</span></h2>
+          <p class="muted">Monitor sellers, subscriptions and platform activity.</p>
+        </div>
+        <span class="admin-date-chip"><i class="bi bi-shield-check"></i> Secure Admin Area</span>
+      </div>
+
+      <div class="admin-alert" id="adminNotice" role="status" hidden></div>
+
+      <div class="section-heading">
+        <div>
+          <h3>Platform summary</h3>
+          <p>Live platform statistics will appear here.</p>
+        </div>
+      </div>
+
+      <div class="stats-grid admin-stats-grid">
+        <article class="stat-card">
+          <div class="stat-top">
+            <span>Total sellers</span>
+            <span class="stat-icon icon-blue"><i class="bi bi-people"></i></span>
+          </div>
+          <div class="stat-value" id="totalSellers">—</div>
+          <p>Registered seller accounts</p>
+        </article>
+
+        <article class="stat-card">
+          <div class="stat-top">
+            <span>Active subscriptions</span>
+            <span class="stat-icon icon-green"><i class="bi bi-gem"></i></span>
+          </div>
+          <div class="stat-value" id="activeSubscriptions">—</div>
+          <p>Currently subscribed sellers</p>
+        </article>
+
+        <article class="stat-card">
+          <div class="stat-top">
+            <span>Pending requests</span>
+            <span class="stat-icon icon-orange"><i class="bi bi-hourglass-split"></i></span>
+          </div>
+          <div class="stat-value" id="pendingRequests">—</div>
+          <p>Waiting for admin review</p>
+        </article>
+
+        <article class="stat-card">
+          <div class="stat-top">
+            <span>Blocked accounts</span>
+            <span class="stat-icon icon-purple"><i class="bi bi-person-slash"></i></span>
+          </div>
+          <div class="stat-value" id="blockedSellers">—</div>
+          <p>Restricted seller accounts</p>
+        </article>
+      </div>
+
+      <div class="admin-quick-grid">
+        <a href="sellers.html" class="admin-quick-card">
+          <span class="quick-icon"><i class="bi bi-people"></i></span>
+          <span><strong>Manage Sellers</strong><small>View profiles and seller data</small></span>
+          <i class="bi bi-arrow-up-right"></i>
+        </a>
+
+        <a href="payments.html" class="admin-quick-card">
+          <span class="quick-icon quick-orange"><i class="bi bi-wallet2"></i></span>
+          <span><strong>Review Payments</strong><small>Approve or reject applications</small></span>
+          <i class="bi bi-arrow-up-right"></i>
+        </a>
+
+        <a href="pricing.html" class="admin-quick-card">
+          <span class="quick-icon quick-purple"><i class="bi bi-tags"></i></span>
+          <span><strong>Manage Pricing</strong><small>Update monthly and yearly plans</small></span>
+          <i class="bi bi-arrow-up-right"></i>
+        </a>
+      </div>
+
+      <section class="panel admin-info-panel">
+        <div class="panel-heading">
+          <div>
+            <h3>Admin control & security</h3>
+            <p>Important platform management information</p>
+          </div>
+          <i class="bi bi-shield-check admin-panel-icon"></i>
+        </div>
+
+        <div class="admin-security-list">
+          <div><i class="bi bi-check-circle-fill"></i><span>Admin access is restricted to authorized accounts.</span></div>
+          <div><i class="bi bi-check-circle-fill"></i><span>Seller data access will be handled through secure server-side operations.</span></div>
+          <div><i class="bi bi-check-circle-fill"></i><span>Account blocks and subscription approvals will be recorded in an audit log.</span></div>
+        </div>
+      </section>
+    </section>
+  </main>
+</div>
+
+<script type="module" src="../../assets/js/admin/admin-dashboard.js"></script>
+</body>
+</html>

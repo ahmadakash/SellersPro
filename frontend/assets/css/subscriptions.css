@@ -1,0 +1,484 @@
+/* =========================================
+   SUBSCRIPTIONS PAGE
+   Shared shell comes from dashboard.css
+   Admin components come from admin.css
+========================================= */
+
+.subscription-content {
+  padding-top: 32px;
+}
+
+/* Header */
+
+.subscription-content .welcome-row {
+  margin-bottom: 28px;
+}
+
+.subscription-content .welcome-row h2 {
+  line-height: 1.25;
+}
+
+.subscription-content .admin-refresh-btn {
+  white-space: nowrap;
+}
+
+/* Statistics */
+
+.subscription-stats-grid {
+  margin-bottom: 27px;
+}
+
+.subscription-stats-grid .stat-card {
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.subscription-stats-grid .stat-card:hover {
+  border-color: #d7e2fa;
+  box-shadow: 0 7px 20px #172b4d0b;
+}
+
+/* Main Panel */
+
+.subscription-panel {
+  padding: 0;
+  overflow: hidden;
+}
+
+.subscription-panel-heading {
+  padding: 21px 21px 17px;
+  margin: 0;
+}
+
+.application-total-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 11px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: #fff;
+  color: #64728a;
+  font-size: 10px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+/* Search and filters */
+
+.subscription-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+  flex-wrap: wrap;
+  padding: 15px 21px;
+  background: #fbfcfe;
+  border-top: 1px solid #edf0f5;
+  border-bottom: 1px solid #edf0f5;
+}
+
+.subscription-search {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  width: min(350px, 100%);
+  height: 40px;
+  padding: 0 12px;
+  border: 1px solid #e6ebf3;
+  border-radius: 9px;
+  background: #fff;
+  color: #8490a4;
+}
+
+.subscription-search:focus-within {
+  border-color: #9bb8ff;
+  box-shadow: 0 0 0 3px #356df315;
+}
+
+.subscription-search i {
+  font-size: 13px;
+  flex-shrink: 0;
+}
+
+.subscription-search input {
+  width: 100%;
+  min-width: 0;
+  height: 100%;
+  padding: 0;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: var(--text);
+  font-size: 11px;
+}
+
+.subscription-search input::placeholder {
+  color: #a0aabb;
+}
+
+.filter-buttons {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  flex-wrap: wrap;
+}
+
+.filter-btn {
+  min-height: 34px;
+  padding: 7px 12px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: transparent;
+  color: #748197;
+  font-size: 10px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.filter-btn:hover {
+  background: #f0f4fb;
+  color: var(--blue);
+}
+
+.filter-btn.active {
+  background: var(--blue-light);
+  border-color: #dce7ff;
+  color: var(--blue);
+}
+
+/* Table */
+
+.subscription-table-wrap {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.subscription-table {
+  width: 100%;
+  min-width: 900px;
+  border-collapse: collapse;
+}
+
+.subscription-table th {
+  padding: 14px 15px;
+  background: #fbfcfe;
+  border-bottom: 1px solid #edf0f5;
+  color: #98a2b3;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.65px;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.subscription-table td {
+  padding: 14px 15px;
+  border-bottom: 1px solid #f0f2f6;
+  color: #53647e;
+  font-size: 11px;
+  vertical-align: middle;
+}
+
+.subscription-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.subscription-table tbody tr:hover {
+  background: #fbfcff;
+}
+
+/* Seller identity */
+
+.application-seller {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 165px;
+}
+
+.application-avatar {
+  width: 35px;
+  height: 35px;
+  flex: 0 0 35px;
+  display: grid;
+  place-items: center;
+  border-radius: 10px;
+  background: #edf3ff;
+  color: var(--blue);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.application-seller-info {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.application-seller-info strong {
+  color: #24334d;
+  font-size: 11px;
+  font-weight: 750;
+}
+
+.application-seller-info small {
+  max-width: 170px;
+  overflow: hidden;
+  color: #8490a4;
+  font-size: 10px;
+  text-overflow: ellipsis;
+}
+
+/* Plan and amount */
+
+.subscription-plan-label {
+  display: inline-flex;
+  padding: 5px 9px;
+  border-radius: 7px;
+  background: #edf3ff;
+  color: #356df3;
+  font-size: 10px;
+  font-weight: 750;
+}
+
+.subscription-billing {
+  color: #53647e;
+  font-weight: 650;
+  text-transform: capitalize;
+}
+
+.subscription-amount {
+  color: #24334d;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.subscription-date {
+  color: #8490a4;
+  font-size: 10px;
+  white-space: nowrap;
+}
+
+/* Status */
+
+.subscription-status {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 10px;
+  border-radius: 20px;
+  font-size: 9px;
+  font-weight: 800;
+  text-transform: capitalize;
+  white-space: nowrap;
+}
+
+.subscription-status.pending {
+  background: #fff3e3;
+  color: #c17b1d;
+}
+
+.subscription-status.approved {
+  background: #e6f8f1;
+  color: #16865e;
+}
+
+.subscription-status.rejected {
+  background: #fff0f0;
+  color: #d64545;
+}
+
+.subscription-status.unknown {
+  background: #f0f2f6;
+  color: #64748b;
+}
+
+/* Action */
+
+.view-application-btn {
+  width: 32px;
+  height: 32px;
+  display: inline-grid;
+  place-items: center;
+  border: 1px solid #e6ebf3;
+  border-radius: 8px;
+  background: #fff;
+  color: #64748b;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.view-application-btn:hover {
+  border-color: #cbdcff;
+  background: #edf3ff;
+  color: var(--blue);
+}
+
+/* Loading */
+
+.subscription-loading {
+  padding: 55px 15px;
+  text-align: center;
+  color: var(--muted);
+}
+
+.subscription-loading .spinner-border {
+  width: 24px;
+  height: 24px;
+}
+
+.subscription-loading p {
+  margin: 12px 0 0;
+  font-size: 11px;
+}
+
+/* Empty */
+
+.subscription-empty {
+  min-height: 220px;
+}
+
+/* Footer */
+
+.subscription-panel-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 13px 21px;
+  border-top: 1px solid #edf0f5;
+  background: #fbfcfe;
+  color: #8490a4;
+  font-size: 10px;
+}
+
+.subscription-panel-footer i {
+  color: #18a66a;
+  margin-right: 4px;
+}
+
+/* Modal */
+
+.application-modal {
+  overflow: hidden;
+  border: 1px solid #e9edf4;
+  border-radius: 14px;
+}
+
+.application-modal .modal-header {
+  padding: 20px 23px;
+  border-bottom: 1px solid #edf0f5;
+}
+
+.application-modal .modal-title {
+  color: var(--navy);
+  font-size: 17px;
+  font-weight: 800;
+}
+
+.application-modal .modal-body {
+  padding: 23px;
+}
+
+.application-modal .modal-footer {
+  padding: 14px 23px;
+  border-top: 1px solid #edf0f5;
+}
+
+.modal-detail-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.modal-detail-item {
+  min-width: 0;
+  padding: 13px 14px;
+  border: 1px solid #edf0f5;
+  border-radius: 9px;
+  background: #f8fafd;
+}
+
+.modal-detail-item small {
+  display: block;
+  margin-bottom: 6px;
+  color: #8490a4;
+  font-size: 10px;
+}
+
+.modal-detail-item strong {
+  display: block;
+  color: #24334d;
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+
+/* Responsive */
+
+@media (max-width: 900px) {
+  .subscription-content {
+    padding-top: 25px;
+  }
+}
+
+@media (max-width: 700px) {
+  .subscription-content .welcome-row {
+    gap: 15px;
+  }
+
+  .subscription-toolbar {
+    align-items: stretch;
+    padding: 14px;
+  }
+
+  .subscription-search {
+    width: 100%;
+  }
+
+  .filter-buttons {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    padding-bottom: 3px;
+  }
+
+  .filter-btn {
+    flex-shrink: 0;
+  }
+
+  .subscription-panel-heading {
+    align-items: flex-start;
+    padding: 17px 15px;
+  }
+
+  .application-total-chip {
+    font-size: 9px;
+  }
+
+  .subscription-panel-footer {
+    align-items: flex-start;
+    padding: 13px 15px;
+    font-size: 9px;
+  }
+
+  .application-modal .modal-body {
+    padding: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .subscription-stats-grid {
+    gap: 10px;
+  }
+
+  .subscription-stats-grid .stat-card {
+    padding: 14px;
+  }
+
+  .subscription-stats-grid .stat-value {
+    font-size: 24px;
+  }
+
+  .modal-detail-grid {
+    grid-template-columns: 1fr;
+  }
+}

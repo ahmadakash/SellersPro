@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Subscription | SellersPro</title>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+
+  <link rel="stylesheet" href="../../assets/css/dashboard.css">
+  <link rel="stylesheet" href="../../assets/css/subscription.css">
+  <link rel="stylesheet" href="../../assets/css/order-requests.css">
+</head>
+<body>
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<div class="app-shell">
+  <aside class="sidebar" id="sidebar">
+    <a href="../home/index.html" class="brand">
+      <span class="brand-icon"><i class="bi bi-shop"></i></span>
+      <span>sellers<span class="brand-blue">Pro</span></span>
+    </a>
+
+    <div class="nav-label">WORKSPACE</div>
+    <nav class="side-nav">
+      <a class="nav-link" href="../dashboard/dashboard.html"><i class="bi bi-grid-1x2"></i><span>Dashboard</span></a>
+      <a class="nav-link" href="../products/products.html"><i class="bi bi-box-seam"></i><span>Products</span></a>
+      <a class="nav-link" href="../orders/orders.html"><i class="bi bi-receipt"></i><span>Orders</span></a>
+      <a class="nav-link" id="navRequestsLink" href="../orders/orders.html#requests"><i class="bi bi-inbox"></i><span>Order requests</span><b class="requests-nav-badge" data-requests-count data-hide-zero hidden>0</b></a>
+      <a class="nav-link" href="../customers/customers.html"><i class="bi bi-people"></i><span>Customers</span></a>
+      <a class="nav-link" href="../analytics/analytics.html"><i class="bi bi-bar-chart-line"></i><span>Analytics</span></a>
+      <a class="nav-link" href="../settings/settings.html"><i class="bi bi-gear"></i><span>Settings</span></a>
+      <a class="nav-link active" href="subscription.html"><i class="bi bi-stars"></i><span>Subscription</span></a>
+    </nav>
+
+    <div class="sidebar-bottom">
+      <div class="plan-card" id="sellerPlanCard">
+        <div class="plan-icon"><i class="bi bi-stars"></i></div>
+        <strong id="sidebarPlanName">Free plan</strong>
+        <p id="sidebarPlanDescription">Upgrade to unlock more.</p>
+        <small id="sidebarPlanLimit">10 orders / month</small>
+        <span class="plan-card-action" id="planCardAction">Manage plan</span>
+      </div>
+      <button class="nav-link logout-btn" id="logoutBtn" type="button">
+        <i class="bi bi-box-arrow-left"></i><span>Log out</span>
+      </button>
+    </div>
+  </aside>
+
+  <main class="main-area">
+    <header class="topbar">
+      <button type="button" class="menu-toggle" id="menuToggle" aria-label="Toggle navigation">
+        <i class="bi bi-list"></i>
+      </button>
+
+      <div class="topbar-title">
+        <span class="eyebrow">ACCOUNT & BILLING</span>
+        <h1>Subscription</h1>
+      </div>
+
+      <button
+        class="user-area profile-trigger"
+        id="profileTrigger"
+        type="button"
+        aria-haspopup="dialog"
+        aria-controls="profileModal"
+        aria-label="Open seller profile"
+      >
+        <span class="user-avatar" id="userAvatar">S</span>
+        <span class="user-info">
+          <strong id="userName">Loading...</strong>
+          <span id="userBusiness">Your business</span>
+        </span>
+        <i class="bi bi-chevron-down profile-chevron"></i>
+      </button>
+    </header>
+
+    <section class="subscription-content">
+      <div class="subscription-heading">
+        <div>
+          <span class="sub-eyebrow">SELLERSPRO MEMBERSHIP</span>
+          <h2>Choose the right plan for your business</h2>
+          <p>Manage your plan, submit payments and track your subscription status.</p>
+        </div>
+        <div class="billing-shield"><i class="bi bi-shield-check"></i></div>
+      </div>
+
+      <div id="subscriptionNotice" class="subscription-notice" role="status" hidden></div>
+
+      <section class="current-plan-card">
+        <div class="current-plan-main">
+          <div class="current-plan-icon"><i class="bi bi-gem"></i></div>
+          <div>
+            <span class="sub-label">YOUR CURRENT PLAN</span>
+            <h3 id="currentPlanName">Loading plan...</h3>
+            <p id="currentPlanDescription">Checking your subscription details</p>
+          </div>
+        </div>
+        <div class="current-plan-status">
+          <span class="status-pill" id="currentPlanStatus">Checking</span>
+          <small id="subscriptionExpiry">—</small>
+        </div>
+      </section>
+
+      <div class="plan-section-heading">
+        <div>
+          <h3>Available plans</h3>
+          <p>Upgrade whenever your business is ready.</p>
+        </div>
+          <span class="secure-label"><i class="bi bi-lock-fill"></i> Secure payment request</span>
+      </div>
+
+      <div class="plan-grid">
+        <article class="subscription-plan free-plan">
+          <div class="plan-top">
+            <span class="plan-tag">STARTER</span>
+            <span class="plan-symbol"><i class="bi bi-shop"></i></span>
+          </div>
+          <h3>Free</h3>
+          <p class="plan-description">For starting and managing a small store.</p>
+          <div class="plan-price">৳0 <small>/ forever</small></div>
+          <div class="plan-divider"></div>
+          <ul class="plan-features">
+            <li><i class="bi bi-check-circle-fill"></i><span id="freeOrderFeature">Up to 10 orders per month</span></li>
+            <li><i class="bi bi-check-circle-fill"></i>Product management</li>
+            <li><i class="bi bi-check-circle-fill"></i>Customer management</li>
+            <li><i class="bi bi-check-circle-fill"></i>Basic dashboard</li>
+          </ul>
+          <button type="button" class="plan-current-btn" id="freePlanButton" disabled>Free plan</button>
+        </article>
+
+        <article class="subscription-plan pro-plan">
+          <div class="popular-ribbon">RECOMMENDED</div>
+          <div class="plan-top">
+            <span class="plan-tag">GROW YOUR BUSINESS</span>
+            <span class="plan-symbol"><i class="bi bi-stars"></i></span>
+          </div>
+          <h3>Pro</h3>
+          <p class="plan-description">For sellers ready to grow without order limits.</p>
+
+          <div class="billing-switch" aria-label="Choose billing cycle">
+            <button type="button" class="billing-option active" data-cycle="monthly">Monthly</button>
+            <button type="button" class="billing-option" data-cycle="yearly">Yearly <span>Save more</span></button>
+          </div>
+
+          <div class="plan-price" id="proPrice">৳100 <small>/ month</small></div>
+          <div class="plan-price-note" id="proPriceNote">Billed monthly after approval</div>
+          <div class="plan-divider"></div>
+          <ul class="plan-features">
+            <li><i class="bi bi-check-circle-fill"></i>Unlimited orders</li>
+            <li><i class="bi bi-check-circle-fill"></i>All Free plan features</li>
+            <li><i class="bi bi-check-circle-fill"></i>Advanced business growth</li>
+            <li><i class="bi bi-check-circle-fill"></i>Priority plan access</li>
+          </ul>
+          <button type="button" class="upgrade-btn" id="upgradeBtn">
+            <span>Upgrade to Pro</span><i class="bi bi-arrow-right"></i>
+          </button>
+        </article>
+      </div>
+
+      <section class="payment-panel" id="paymentPanel" hidden>
+        <div class="payment-panel-heading">
+          <div class="payment-panel-icon"><i class="bi bi-wallet2"></i></div>
+          <div>
+            <h3>Submit your payment</h3>
+            <p>Send the payment first, then enter the transaction details below.</p>
+          </div>
+          <button type="button" class="close-payment" id="closePayment" aria-label="Close payment form">
+            <i class="bi bi-x-lg"></i>
+          </button>
+        </div>
+
+        <div class="payment-summary">
+          <div><small>Selected plan</small><strong id="selectedPlanLabel">Pro Monthly</strong></div>
+          <div><small>Payable amount</small><strong id="selectedAmount">৳100</strong></div>
+        </div>
+
+          <!-- Payment instructions and receiving numbers -->
+          <div class="payment-instructions">
+            <div class="payment-method-icon">
+              <i class="bi bi-phone"></i>
+            </div>
+
+            <div class="payment-instructions-content">
+              <strong>Manual bKash / Nagad payment</strong>
+              <p>
+                Send the exact payable amount to one of the official SellersPro
+                payment numbers below. Then select the same payment method and
+                submit your sender number and Transaction ID.
+              </p>
+
+              <div class="receiver-number-list">
+                <div class="receiver-number-card">
+                  <div class="receiver-brand">
+                    <span class="receiver-dot bkash-dot"></span>
+                    <strong>bKash</strong>
+                    <span class="receiver-type">Personal</span>
+                  </div>
+                  <div class="receiver-number-row">
+                    <strong>01XXXXXXXXX</strong>
+                    <span>Receiving number</span>
+                  </div>
+                </div>
+
+                <div class="receiver-number-card">
+                  <div class="receiver-brand">
+                    <span class="receiver-dot nagad-dot"></span>
+                    <strong>Nagad</strong>
+                    <span class="receiver-type">Personal</span>
+                  </div>
+                  <div class="receiver-number-row">
+                    <strong>01XXXXXXXXX</strong>
+                    <span>Receiving number</span>
+                  </div>
+                </div>
+              </div>
+
+              <small>
+                Important: Make sure you send money to the correct number.
+                Keep your Transaction ID until your payment is verified.
+              </small>
+            </div>
+          </div>
+
+          <!-- Activation time notice -->
+          <div class="activation-notice">
+            <div class="activation-notice-icon">
+              <i class="bi bi-clock-history"></i>
+            </div>
+            <div>
+              <strong>Account activation within 24 hours</strong>
+              <p>
+                After submitting your payment request, your Pro account will be
+                activated within 24 hours after payment verification by our admin team.
+                If your account is not activated within 24 hours, please contact
+                SellersPro Support.
+              </p>
+            </div>
+          </div>
+
+        <form id="paymentForm">
+          <div class="payment-form-grid">
+            <div class="payment-field">
+              <label for="paymentMethod">Payment method</label>
+              <select id="paymentMethod" required>
+                <option value="">Select method</option>
+                <option value="bKash">bKash</option>
+                <option value="Nagad">Nagad</option>
+              </select>
+            </div>
+            <div class="payment-field">
+              <label for="senderNumber">Sender mobile number</label>
+              <input id="senderNumber" type="tel" inputmode="tel" maxlength="20" placeholder="01XXXXXXXXX" required>
+            </div>
+            <div class="payment-field full-field">
+              <label for="transactionId">Transaction ID (TrxID)</label>
+              <input id="transactionId" type="text" maxlength="100" placeholder="Enter your payment transaction ID" required>
+            </div>
+          </div>
+
+          <label class="payment-confirm">
+            <input type="checkbox" id="paymentConfirm" required>
+            <span>I confirm that I have sent the displayed amount and the payment information is correct.</span>
+          </label>
+
+          <div class="payment-form-actions">
+            <button type="button" class="cancel-payment-btn" id="cancelPayment">Cancel</button>
+            <button type="submit" class="submit-payment-btn" id="submitPayment">
+              <i class="bi bi-send"></i> Submit payment request
+            </button>
+          </div>
+        </form>
+      </section>
+
+      <section class="history-section">
+        <div class="history-heading">
+          <div>
+            <h3>Payment history</h3>
+            <p>Track all your subscription payment requests.</p>
+          </div>
+          <button type="button" class="refresh-history-btn" id="refreshHistory">
+            <i class="bi bi-arrow-clockwise"></i> Refresh
+          </button>
+        </div>
+
+        <div class="history-table-wrap">
+          <table class="history-table">
+            <thead>
+              <tr>
+                <th>Plan</th>
+                <th>Billing</th>
+                <th>Amount</th>
+                <th>Method</th>
+                <th>Transaction ID</th>
+                <th>Date</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="paymentHistoryBody">
+              <tr><td colspan="7" class="table-message">Loading payment history...</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="history-mobile-list" id="paymentHistoryMobile"></div>
+      </section>
+
+      <div class="subscription-footnote">
+        <i class="bi bi-info-circle"></i>
+        Your Pro subscription starts only after payment verification and approval by SellersPro Admin.
+      </div>
+
+    <!-- Developer and support information -->
+    <section class="developer-support-card">
+      <div class="developer-support-heading">
+        <div class="developer-support-icon">
+          <i class="bi bi-headset"></i>
+        </div>
+        <div>
+          <h3>Need help with your payment?</h3>
+          <p>Our support team is here to help you.</p>
+        </div>
+      </div>
+
+      <div class="developer-support-details">
+        <div class="support-detail">
+          <i class="bi bi-person-badge"></i>
+          <div>
+            <small>Developed by</small>
+            <strong>Dummy Developer Name</strong>
+          </div>
+        </div>
+
+        <div class="support-detail">
+          <i class="bi bi-envelope"></i>
+          <div>
+            <small>Support email</small>
+            <strong>support@example.com</strong>
+          </div>
+        </div>
+
+        <div class="support-detail">
+          <i class="bi bi-telephone"></i>
+          <div>
+            <small>Contact number</small>
+            <strong>01XXXXXXXXX</strong>
+          </div>
+        </div>
+
+        <div class="support-detail">
+          <i class="bi bi-globe"></i>
+          <div>
+            <small>Website</small>
+            <strong>www.example.com</strong>
+          </div>
+        </div>
+      </div>
+
+      <p class="developer-support-note">
+        For payment verification delays or subscription-related issues,
+        contact our support team with your Transaction ID.
+      </p>
+    </section>
+
+    </section>
+
+  </main>
+</div>
+
+<!-- Profile modal (same as the Dashboard page) -->
+<div class="profile-modal" id="profileModal" hidden>
+  <div class="profile-backdrop" data-close-profile></div>
+
+  <section class="profile-dialog" role="dialog" aria-modal="true" aria-labelledby="profileModalTitle">
+    <div class="profile-modal-header">
+      <div>
+        <p class="eyebrow">ACCOUNT SETTINGS</p>
+        <h2 id="profileModalTitle">Seller profile</h2>
+        <p class="muted">Manage your personal and business details.</p>
+      </div>
+
+      <button type="button" class="profile-close" id="closeProfileBtn" aria-label="Close profile">
+        <i class="bi bi-x-lg"></i>
+      </button>
+    </div>
+
+    <form id="profileForm">
+      <div class="profile-form-grid">
+        <div class="profile-field">
+          <label for="profileName">Full name</label>
+          <input id="profileName" name="name" type="text" maxlength="100" required>
+        </div>
+
+        <div class="profile-field">
+          <label for="profileBusinessName">Business name</label>
+          <input id="profileBusinessName" name="businessName" type="text" maxlength="120" required>
+        </div>
+
+        <div class="profile-field">
+          <label for="profileEmail">Email address</label>
+          <input id="profileEmail" name="email" type="email" readonly>
+          <small>Email changes are managed separately.</small>
+        </div>
+
+        <div class="profile-field">
+          <label for="profilePhone">Phone number</label>
+          <input id="profilePhone" name="phone" type="tel" maxlength="25">
+        </div>
+      </div>
+
+      <p class="profile-feedback" id="profileFeedback" role="status" hidden></p>
+
+      <div class="profile-actions">
+        <button type="button" class="profile-cancel-btn" id="cancelProfileBtn">Cancel</button>
+        <button type="submit" class="primary-btn" id="saveProfileBtn">Save changes</button>
+      </div>
+    </form>
+  </section>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script type="module" src="../../assets/js/subscription/subscription.js"></script>
+<script type="module" src="../../assets/js/services/plan-status.js"></script>
+<script type="module" src="../../assets/js/services/requests-widget.js"></script>
+<script type="module" src="../../assets/js/services/verify-gate.js"></script>
+</body>
+</html>
